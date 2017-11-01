@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 open System.Diagnostics
+open System.Timers
 
 open FSharp.Data
 
@@ -65,8 +66,8 @@ module Main =
             (indicator, Some html)
 
     let start port minutes emailAddress =
-        while true do
-            Threading.Thread.Sleep (minutes * 60 * 1000)
+        use timer = new Timer (float (minutes * 60 * 1000))
+        timer.Elapsed.Add (fun _ ->
             let errorIndicators = readErrorIndicators ()
             match checkMiner port errorIndicators with
             | None ->
@@ -76,7 +77,15 @@ module Main =
                 match emailAddress with
                 | Some addr -> Email.send addr (makeErrorMessage error)
                 | None -> ()
-                restart ()
+                restart ())
+        timer.Start ()
+
+        let rec loop () =
+            let key = Console.ReadKey(true).Key
+            if key <> ConsoleKey.Escape then loop ()
+        loop ()
+
+        timer.Stop ()
 
     [<EntryPoint>]
     let main argv =
