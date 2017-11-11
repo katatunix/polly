@@ -17,7 +17,7 @@ module Process =
 
         use mreOut = new ManualResetEvent false
         p.OutputDataReceived.Add (fun e ->  if isNull e.Data then mreOut.Set () |> ignore
-                                            else printfn "output: %s" e.Data )
+                                            else printfn "%s" e.Data )
         p.Start () |> ignore
         p.BeginOutputReadLine ()
 

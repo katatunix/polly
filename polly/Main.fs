@@ -5,9 +5,7 @@ open System.IO
 open System.Text.RegularExpressions
 open System.Diagnostics
 open System.Timers
-
 open FSharp.Data
-
 open NghiaBui.Common
 
 module Main =
@@ -31,8 +29,7 @@ module Main =
             .Replace("</body></html>", "")
 
     let readErrorIndicators () =
-        "config.txt"
-        |> File.ReadAllLines
+        File.ReadAllLines "config.txt"
         |> List.ofArray
         |> List.filter (fun line ->
             let trimmed = line.Trim ()
@@ -40,7 +37,7 @@ module Main =
 
     type ErrorType =
         | NoAnswer
-        | RunningError of string * string
+        | RunningError of string * string // indicator * html
 
     let checkHtml (errorIndicators : string list) (htmlOp : string option) =
         match htmlOp with
@@ -63,20 +60,18 @@ module Main =
         | NoAnswer ->
             "No answer from miner", None
         | RunningError (indicator, html) ->
-            (indicator, Some html)
+            indicator, Some html
 
-    let start port minutes emailAddress =
-        use timer = new Timer (float (minutes * 60 * 1000))
+    let start port minutes (emails : string []) =
+        use timer = new Timer (minutes * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ ->
             let errorIndicators = readErrorIndicators ()
             match checkMiner port errorIndicators with
             | None ->
                 printfn "[%A] OK" DateTime.Now
             | Some error ->
-                printfn "[%A] RESET" DateTime.Now
-                match emailAddress with
-                | Some addr -> Email.send addr (makeErrorMessage error)
-                | None -> ()
+                for email in emails do
+                    Email.send email (makeErrorMessage error)
                 restart ())
         timer.Start ()
 
@@ -89,15 +84,13 @@ module Main =
 
     [<EntryPoint>]
     let main argv =
-        //Process.run argv.[0] argv.[1]
-        //0
         match argv with
         | [| Int port; Int minutes |] ->
-            start port minutes None
+            start port minutes [||]
             0
-        | [| Int port; Int minutes; emailAddress |] ->
-            start port minutes (Some emailAddress)
+        | [| Int port; Int minutes; emails |] ->
+            start port minutes (emails.Split ',')
             0
         | _ ->
-            printfn "Usage: port minutes"
+            printfn "Usage: polly.exe port minutes [email1,email2,...]"
             1
