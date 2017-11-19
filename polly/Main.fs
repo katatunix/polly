@@ -6,18 +6,18 @@ open System.Text.RegularExpressions
 open System.Diagnostics
 open System.Timers
 open FSharp.Data
-open NghiaBui.Common
+open NghiaBui.Common.ActivePatterns
 
 module Main =
 
-    let getHtml port =
+    let fetchHtml port =
         let url = sprintf "http://localhost:%d" port
         try
             Http.RequestString url |> Some
         with _ ->
             None
 
-    let cleanHtml (html : string) =
+    let clean (html : string) =
         let regex = Regex """<font color=\"#.{6}\">"""
         regex
             .Replace(html, "")
@@ -28,51 +28,58 @@ module Main =
             .Replace("</font>", "")
             .Replace("</body></html>", "")
 
-    let readErrorIndicators () =
+    let loadErrorIndicators () =
         File.ReadAllLines "config.txt"
         |> List.ofArray
         |> List.filter (fun line ->
             let trimmed = line.Trim ()
             trimmed.Length > 0 && not (trimmed.StartsWith "#"))
 
-    type ErrorType =
-        | NoAnswer
-        | RunningError of string * string // indicator * html
+    type Error = {
+        Reason : string
+        Log : string option }
 
     let checkHtml (errorIndicators : string list) (htmlOp : string option) =
         match htmlOp with
         | None ->
-            Some NoAnswer
+            Some { Reason = "No answer from miner"; Log = None }
         | Some html ->
             errorIndicators
             |> List.tryFind (fun indicator -> html.IndexOf indicator > -1)
-            |> Option.map (fun indicator -> RunningError (indicator, html))
+            |> Option.map (fun indicator -> { Reason = indicator; Log = Some html })
 
     let checkMiner port errorIndicators =
-        getHtml port
-        |> Option.map cleanHtml
+        fetchHtml port
+        |> Option.map clean
         |> checkHtml errorIndicators
 
-    let restart () =
-        Process.Start ("shutdown", "/r /t 1") |> ignore
+    let restart () = Process.Start ("shutdown", "/r /t 1") |> ignore
 
-    let makeErrorMessage = function
-        | NoAnswer ->
-            "No answer from miner", None
-        | RunningError (indicator, html) ->
-            indicator, Some html
+    let sendStartToEmails (emails : string []) =
+        let ip = PublicIp.get ()
+        printfn "Public IP = %s" ip
+        for email in emails do
+            printfn "Send start notification to %s" email
+            Email.sendStart email ip
+        printfn "OK"
+
+    let sendResetToEmails (emails : string []) error =
+        for email in emails do
+             Email.sendReset email error.Reason error.Log
 
     let start port minutes (emails : string []) =
+        try sendStartToEmails emails with _ -> ()
+
         use timer = new Timer (minutes * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ ->
-            let errorIndicators = readErrorIndicators ()
+            let errorIndicators = loadErrorIndicators ()
             match checkMiner port errorIndicators with
             | None ->
                 printfn "[%A] OK" DateTime.Now
             | Some error ->
-                for email in emails do
-                    Email.send email (makeErrorMessage error)
+                try sendResetToEmails emails error with _ -> ()
                 restart ())
+
         timer.Start ()
 
         let rec loop () =
@@ -84,6 +91,7 @@ module Main =
 
     [<EntryPoint>]
     let main argv =
+        //Process.run argv.[0] argv.[1]
         match argv with
         | [| Int port; Int minutes |] ->
             start port minutes [||]

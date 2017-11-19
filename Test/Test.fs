@@ -8,11 +8,11 @@ open polly.Main
 
 [<Test>]
 let ``test send email`` () =
-    Email.send "nghiabuivan1987@gmail.com" ("fan=0%", Some "haha fan=0% haha")
+    Email.sendReset "nghiabuivan1987@gmail.com" "fan=0%" (Some "haha fan=0% haha")
 
 [<Test>]
 let ``test get html`` () =
-    let html = getHtml 3333
+    let html = fetchHtml 3333
     printfn "%s" html.Value
 
 [<Test>]
@@ -21,7 +21,7 @@ let ``test clean html`` () =
 {"result": ["10.0 - ETH", "336", "180898;890;0", "30139;30141;30147;30154;30158;30156", "0;0;0", "off;off;off;off;off;off", "59;55;59;58;61;59;58;55;58;51;54;41", "asia1.ethermine.org:4444", "1;0;0;0"]}<br><br><font color="#ff00ff">GPU0 t=59C fan=55%, GPU1 t=59C fan=58%, GPU2 t=61C fan=59%, GPU3 t=58C fan=55%, GPU4 t=58C fan=52%, GPU5 t=54C fan=42%
 </font><br><font color="#00ff00">ETH: 10/28/17-08:28:30 - SHARE FOUND - (GPU 5)
 </font><br></body></html>"""
-    let clean = cleanHtml html
+    let clean = clean html
     let expected = """{"result": ["10.0 - ETH", "336", "180898;890;0", "30139;30141;30147;30154;30158;30156", "0;0;0", "off;off;off;off;off;off", "59;55;59;58;61;59;58;55;58;51;54;41", "asia1.ethermine.org:4444", "1;0;0;0"]}
 
 GPU0 t=59C fan=55%, GPU1 t=59C fan=58%, GPU2 t=61C fan=59%, GPU3 t=58C fan=55%, GPU4 t=58C fan=52%, GPU5 t=54C fan=42%

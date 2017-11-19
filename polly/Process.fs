@@ -10,16 +10,17 @@ module Process =
         p.StartInfo.FileName <- filename
         p.StartInfo.Arguments <- args
         p.StartInfo.UseShellExecute <- false
-        p.StartInfo.CreateNoWindow <- false
-        p.StartInfo.WindowStyle <- ProcessWindowStyle.Normal
-        p.StartInfo.RedirectStandardOutput <- true
+        p.StartInfo.CreateNoWindow <- true
+        //p.StartInfo.WindowStyle <- ProcessWindowStyle.Hidden
+        p.StartInfo.RedirectStandardError <- true
 
 
-        use mreOut = new ManualResetEvent false
-        p.OutputDataReceived.Add (fun e ->  if isNull e.Data then mreOut.Set () |> ignore
+        use mre = new ManualResetEvent false
+        p.ErrorDataReceived.Add (fun e ->   if isNull e.Data then mre.Set () |> ignore
                                             else printfn "%s" e.Data )
         p.Start () |> ignore
-        p.BeginOutputReadLine ()
+        p.BeginErrorReadLine ()
 
         p.WaitForExit ()
-        mreOut.WaitOne () |> ignore
+        mre.WaitOne () |> ignore
+        p.ExitCode
