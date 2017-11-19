@@ -53,22 +53,24 @@ module Main =
         |> Option.map clean
         |> checkHtml errorIndicators
 
-    let restart () = Process.Start ("shutdown", "/r /t 1") |> ignore
-
-    let sendStartToEmails (emails : string []) =
-        let ip = PublicIp.get ()
-        printfn "Public IP = %s" ip
+    let sendPublicIpToEmails ip emails =
         for email in emails do
-            printfn "Send start notification to %s" email
-            Email.sendStart email ip
-        printfn "OK"
+            printf "Send public IP address to %s ..." email
+            Email.sendPublicIp email ip
+            printfn "[OK]"
 
-    let sendResetToEmails (emails : string []) error =
+    let sendResetToEmails error emails =
         for email in emails do
              Email.sendReset email error.Reason error.Log
 
+    let restart () = Process.Start ("shutdown", "/r /t 1") |> ignore
+
     let start port minutes (emails : string []) =
-        try sendStartToEmails emails with _ -> ()
+        let ip = PublicIp.get ()
+        printfn "Public IP = %s" ip
+        if ip <> PublicIp.load () then
+            try sendPublicIpToEmails ip emails with _ -> ()
+            PublicIp.save ip
 
         use timer = new Timer (minutes * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ ->
@@ -77,7 +79,7 @@ module Main =
             | None ->
                 printfn "[%A] OK" DateTime.Now
             | Some error ->
-                try sendResetToEmails emails error with _ -> ()
+                try sendResetToEmails error emails with _ -> ()
                 restart ())
 
         timer.Start ()

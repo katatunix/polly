@@ -35,8 +35,8 @@ module Email =
 
         send toAddress subject body
 
-    let sendStart (toAddress : string) (ip : string) =
-        let subject = "Start notification"
+    let sendPublicIp (toAddress : string) (ip : string) =
+        let subject = "New IP address"
 
         let computer = makeComputerText ()
         let ip = sprintf "IP address = %s" ip
