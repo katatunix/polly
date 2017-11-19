@@ -27,13 +27,13 @@ module Miner =
             .Replace("</font>", "")
             .Replace("</body></html>", "")
 
-    let private checkHtml (errorIndicators : string list) (htmlOp : string option) =
+    let private checkHtml (errorIndicators : string []) (htmlOp : string option) =
         match htmlOp with
         | None ->
             Some { Reason = "No answer from miner"; Log = None }
         | Some html ->
             errorIndicators
-            |> List.tryFind (fun indicator -> html.IndexOf indicator > -1)
+            |> Array.tryFind (fun indicator -> html.IndexOf indicator > -1)
             |> Option.map (fun indicator -> { Reason = indicator; Log = Some html })
 
     let check port errorIndicators =

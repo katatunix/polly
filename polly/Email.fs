@@ -6,14 +6,21 @@ open System.Net.Mail
 
 module Email =
 
-    let private send (toAddress : string) subject body =
-        let fromAddress = MailAddress ("pollymonitor2@gmail.com", "Polly")
+    type SenderInfo = {
+        SmtpHost : string
+        SmtpPort : int
+        Email : string
+        Password : string
+        DisplayedName : string }
+
+    let private send (senderInfo : SenderInfo) (toAddress : string) subject body =
+        let fromAddress = MailAddress (senderInfo.Email, senderInfo.DisplayedName)
         let toAddress = MailAddress toAddress
-        let fromPassword = "G1gabyt3?az"
+        let fromPassword = senderInfo.Password
         use smtp =
             new SmtpClient (
-                Host = "smtp.gmail.com",
-                Port = 587,
+                Host = senderInfo.SmtpHost,
+                Port = senderInfo.SmtpPort,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
@@ -24,7 +31,7 @@ module Email =
     let private makeComputerText () =
         sprintf "Computer = %s" Environment.MachineName
 
-    let sendReset (toAddress : string) reason log =
+    let sendReset senderInfo (toAddress : string) reason log =
         let subject = "Reset notification"
 
         let computer = makeComputerText ()
@@ -33,13 +40,13 @@ module Email =
                                     | Some text -> sprintf "\n\nLog =\n%s" text
         let body = sprintf "%s%s%s" computer reason log
 
-        send toAddress subject body
+        send senderInfo toAddress subject body
 
-    let sendPublicIp (toAddress : string) (ip : string) =
+    let sendPublicIp senderInfo (toAddress : string) (ip : string) =
         let subject = "New IP address"
 
         let computer = makeComputerText ()
         let ip = sprintf "IP address = %s" ip
         let body = sprintf "%s\n%s\n" computer ip
 
-        send toAddress subject body
+        send senderInfo toAddress subject body

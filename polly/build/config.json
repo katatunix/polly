@@ -1,0 +1,28 @@
+{
+    "Port" : 3333,
+    "CheckIntervalMinutes" : 7,
+    "Polly" : {
+        "SmtpHost" : "smtp.gmail.com",
+        "SmtpPort" : 587,
+        "Email" : "pollymonitor2@gmail.com",
+        "Password" : "test",
+        "DisplayedName" : "Polly"
+    },
+    "SubscribedEmails" : [
+        "apple@gmail.com",
+        "banana@yahoo.com"
+    ],
+    "ErrorIndicators" : [
+        "got incorrect share",
+        "fan=0%",
+        "gpu error",
+        "you need to restart miner",
+        "cuda error",
+        "opencl error",
+        "gpuminer cu_k1 failed",
+        "gpuminer cu_kx failed",
+        "gpuminer cu_k01 failed",
+        "gpuminer kx failed",
+        "cannot get fan speed"
+    ]
+}

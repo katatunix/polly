@@ -1,48 +1,52 @@
 ﻿namespace polly
 
 open System
-open System.IO
 open System.Diagnostics
 open System.Timers
-open NghiaBui.Common.ActivePatterns
 
 module Main =
 
-    let loadErrorIndicators () =
-        File.ReadAllLines "config.txt"
-        |> List.ofArray
-        |> List.filter (fun line ->
-            let trimmed = line.Trim ()
-            trimmed.Length > 0 && not (trimmed.StartsWith "#"))
+    let sendPublicIpToEmails senderInfo ip emails =
+        try
+            for email in emails do
+                printf "Send public IP address to %s ... " email
+                Email.sendPublicIp senderInfo email ip
+                printfn "[OK]"
+        with _ -> ()
 
-    let sendPublicIpToEmails ip emails =
-        for email in emails do
-            printf "Send public IP address to %s ... " email
-            Email.sendPublicIp email ip
-            printfn "[OK]"
-
-    let sendResetToEmails (error : Miner.Error) emails =
-        for email in emails do
-             Email.sendReset email error.Reason error.Log
+    let sendResetToEmails senderInfo (error : Miner.Error) emails =
+        try
+            for email in emails do
+                 Email.sendReset senderInfo email error.Reason error.Log
+        with _ -> ()
 
     let resetComputer () =
         Process.Start ("shutdown", "/r /t 1") |> ignore
 
-    let start port minutes (emails : string []) =
+    let extractSenderInfo (config : Config.Json.Root) : Email.SenderInfo =
+        let p = config.Polly
+        {   SmtpHost        = p.SmtpHost
+            SmtpPort        = p.SmtpPort
+            Email           = p.Email
+            Password        = p.Password
+            DisplayedName   = p.DisplayedName }
+
+    let start (config : Config.Json.Root) =
+        let senderInfo = extractSenderInfo config
+
         let ip = PublicIp.get ()
         printfn "Public IP = %s" ip
         if ip <> PublicIp.load () then
-            try sendPublicIpToEmails ip emails with _ -> ()
+            sendPublicIpToEmails senderInfo ip config.SubscribedEmails
             PublicIp.save ip
 
-        use timer = new Timer (minutes * 60 * 1000 |> float)
+        use timer = new Timer (config.CheckIntervalMinutes * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ ->
-            let errorIndicators = loadErrorIndicators ()
-            match Miner.check port errorIndicators with
+            match Miner.check config.Port config.ErrorIndicators with
             | None ->
                 printfn "[%A] OK" DateTime.Now
             | Some error ->
-                try sendResetToEmails error emails with _ -> ()
+                sendResetToEmails senderInfo error config.SubscribedEmails
                 resetComputer ())
 
         timer.Start ()
@@ -56,13 +60,10 @@ module Main =
 
     [<EntryPoint>]
     let main argv =
-        match argv with
-        | [| Int port; Int minutes |] ->
-            start port minutes [||]
-            0
-        | [| Int port; Int minutes; emails |] ->
-            start port minutes (emails.Split ',')
-            0
-        | _ ->
-            printfn "Usage: polly.exe <port> <minutes> [<email1>,<email2>,...]"
+        match Config.load () with
+        | Error msg ->
+            printfn "Error: %s" msg
             1
+        | Ok config ->
+            start config
+            0
