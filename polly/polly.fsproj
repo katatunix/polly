@@ -56,9 +56,9 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Miner.fs" />
     <Compile Include="Email.fs" />
     <Compile Include="PublicIp.fs" />
-    <Compile Include="Process.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

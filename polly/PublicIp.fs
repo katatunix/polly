@@ -8,7 +8,7 @@ module PublicIp =
     let private IP_FILE = "ip.dat"
 
     let get () =
-        Http.RequestString "http://api.ipify.org"
+        try Http.RequestString "http://api.ipify.org" with _ -> ""
 
     let load () =
         try File.ReadAllText(IP_FILE) with _ -> ""
