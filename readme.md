@@ -38,5 +38,6 @@ Run this tool on your rig, when any of predefined error indicators happen (e.g.,
     ]
 }
 ```
+Most of options are self-explanatory. Regarding the `Polly` config, it is recommended to use Gmail. You should change the `pollymonitor2@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/security?utm_source=OGB&utm_medium=app#signin
 * Run `polly.exe`
 * Make sure that the tool is execute every time your rig starts (e.g., create a `.bat` file and put it into the `Startup` folder of Windows).
