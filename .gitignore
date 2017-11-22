@@ -1,6 +1,4 @@
-/build/*.pdb
-/build/*.xml
-/build/System.ValueTuple.*
+/build/
 
 # Autosave files
 *~
