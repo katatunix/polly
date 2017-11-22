@@ -8,7 +8,7 @@ Run this tool on your rig, when any of predefined error indicators happen (e.g.,
 
 ## Usage
 * Make sure the `management mode` of your Claymore's Miner is enabled at a port (e.g., `3333`).
-* Copy folder `/polly/build` to your rig.
+* Copy folder `/build` to your rig.
 * Open file `config.json` and modify it following the template below:
 ```
 {
