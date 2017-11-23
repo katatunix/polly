@@ -32,11 +32,14 @@ module Main =
             DisplayedName   = p.DisplayedName }
 
     let checkIp senderInfo (config : Config.Json.Root) =
-        let ip = PublicIp.get ()
-        printfn "Public IP = %s" ip
-        if ip <> PublicIp.load () then
-            sendPublicIpToEmails senderInfo ip config.SubscribedEmails
-            PublicIp.save ip
+        match PublicIp.get () with
+        | Error msg ->
+            printfn "Could not get public IP: %s" msg
+        | Ok ip ->
+            printfn "Public IP = %s" ip
+            if ip <> PublicIp.load () then
+                sendPublicIpToEmails senderInfo ip config.SubscribedEmails
+                PublicIp.save ip
 
     let start (config : Config.Json.Root) =
         let senderInfo = extractSenderInfo config
