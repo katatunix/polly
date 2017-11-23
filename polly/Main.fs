@@ -31,20 +31,25 @@ module Main =
             Password        = p.Password
             DisplayedName   = p.DisplayedName }
 
-    let start (config : Config.Json.Root) =
-        let senderInfo = extractSenderInfo config
-
+    let checkIp senderInfo (config : Config.Json.Root) =
         let ip = PublicIp.get ()
         printfn "Public IP = %s" ip
         if ip <> PublicIp.load () then
             sendPublicIpToEmails senderInfo ip config.SubscribedEmails
             PublicIp.save ip
 
+    let start (config : Config.Json.Root) =
+        let senderInfo = extractSenderInfo config
+        let checkIp () = checkIp senderInfo config
+
+        checkIp ()
+
         use timer = new Timer (config.CheckIntervalMinutes * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ ->
             match Miner.check config.Port config.ErrorIndicators with
             | None ->
                 printfn "[%A] OK" DateTime.Now
+                checkIp ()
             | Some error ->
                 sendResetToEmails senderInfo error config.SubscribedEmails
                 resetComputer ())
