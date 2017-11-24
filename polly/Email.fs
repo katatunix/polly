@@ -31,18 +31,17 @@ module Email =
     let private makeComputerText () =
         sprintf "Computer = %s" Environment.MachineName
 
-    let sendReset senderInfo (toAddress : string) reason log =
-        let subject = "Reset notification"
+    let sendReboot senderInfo toAddress reason log =
+        let subject = "Reboot notification"
 
         let computer = makeComputerText ()
         let reason = sprintf "\nReason = %s" reason
-        let log = match log with    | None -> ""
-                                    | Some text -> sprintf "\n\nLog =\n%s" text
+        let log = sprintf "\nLog = %s" log
         let body = sprintf "%s%s%s" computer reason log
 
         send senderInfo toAddress subject body
 
-    let sendPublicIp senderInfo (toAddress : string) (ip : string) =
+    let sendPublicIp senderInfo toAddress ip =
         let subject = "New IP address"
 
         let computer = makeComputerText ()
