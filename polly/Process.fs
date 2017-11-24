@@ -7,15 +7,15 @@ open System.Text
 module Process =
 
     let run filename args onLine =
-        let handle () =
-            use p = new Process ()
-            p.StartInfo.FileName <- filename
-            p.StartInfo.Arguments <- args
-            p.StartInfo.UseShellExecute <- false
-            p.StartInfo.RedirectStandardOutput <- true
-            p.StartInfo.RedirectStandardError <- true
-            p.StartInfo.StandardOutputEncoding <- Encoding.UTF8
+        let p = new Process ()
+        p.StartInfo.FileName <- filename
+        p.StartInfo.Arguments <- args
+        p.StartInfo.UseShellExecute <- false
+        p.StartInfo.RedirectStandardOutput <- true
+        p.StartInfo.RedirectStandardError <- true
+        p.StartInfo.StandardOutputEncoding <- Encoding.UTF8
 
+        let handle () =
             p.Start () |> ignore
 
             use mreOut = new ManualResetEvent false
@@ -34,5 +34,8 @@ module Process =
             mreErr.WaitOne () |> ignore
 
         let thread = Thread (ThreadStart handle)
-        thread.Start ()
-        thread.Join ()
+
+        let start   = (fun () -> thread.Start ())
+        let wait    = (fun () -> thread.Join ())
+        let stop    = (fun () -> p.Kill ())
+        (start, wait, stop)

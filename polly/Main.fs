@@ -7,7 +7,8 @@ module Main =
 
     let start config =
         let ipTimer = PublicIp.startCheck out config
-        Monitor.exec out config
+        let monitorWait, monitorStop = Monitor.start out config
+        monitorWait ()
         ipTimer.Stop ()
 
     [<EntryPoint>]

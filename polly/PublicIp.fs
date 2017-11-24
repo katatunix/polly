@@ -40,7 +40,7 @@ module PublicIp =
         let subscribedEmails = config.SubscribedEmails
         checkIp out senderInfo subscribedEmails
 
-        use timer = new Timer(10 * 60 * 1000 |> float)
+        let timer = new Timer(10 * 60 * 1000 |> float)
         timer.Elapsed.Add (fun _ -> checkIp out senderInfo subscribedEmails)
         timer.Start ()
         timer

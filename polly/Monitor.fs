@@ -13,7 +13,7 @@ module Monitor =
         |> Array.tryFind line.Contains
         |> Option.map (fun indicator -> { Reason = indicator; Log = line })
 
-    let private sendReboot senderInfo emails (error : Error)  =
+    let private sendEmail senderInfo emails (error : Error)  =
         try
             for email in emails do
                 Email.sendReboot senderInfo email error.Reason error.Log
@@ -22,19 +22,22 @@ module Monitor =
     let private reboot () =
         Process.Start ("shutdown", "/r /t 1") |> ignore
 
-    let exec out config =
+    let start out config =
         let senderInfo = Config.extractSenderInfo config
         let checkLine = checkLine config.ErrorIndicators
-        let sendReboot = sendReboot senderInfo config.SubscribedEmails
+        let sendEmail = sendEmail senderInfo config.SubscribedEmails
 
-        Process.run
-            "winpty.exe"
-            (sprintf "-Xallow-non-tty -Xplain \"%s\" %s" config.ClaymoresPath config.ClaymoresArgs)
-            (fun line ->
-                out line
-                match checkLine line with
-                | None ->
-                    ()
-                | Some error ->
-                    sendReboot error
-                    reboot ())
+        let start, wait, stop =
+            Process.run
+                "winpty.exe"
+                (sprintf "-Xallow-non-tty -Xplain \"%s\" %s" config.ClaymoresPath config.ClaymoresArgs)
+                (fun line ->
+                    out line
+                    match checkLine line with
+                    | None ->
+                        ()
+                    | Some error ->
+                        sendEmail error
+                        reboot ())
+        start ()
+        (wait, stop)
