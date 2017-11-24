@@ -1,5 +1,6 @@
 ﻿namespace polly
 
+open System
 open System.Diagnostics
 
 module Monitor =
@@ -27,17 +28,14 @@ module Monitor =
         let checkLine = checkLine config.ErrorIndicators
         let sendEmail = sendEmail senderInfo config.SubscribedEmails
 
-        let start, wait, stop =
-            Process.run
-                "winpty.exe"
-                (sprintf "-Xallow-non-tty -Xplain \"%s\" %s" config.ClaymoresPath config.ClaymoresArgs)
-                (fun line ->
-                    out line
-                    match checkLine line with
-                    | None ->
-                        ()
-                    | Some error ->
-                        sendEmail error
-                        reboot ())
-        start ()
-        (wait, stop)
+        Process.run
+            "winpty.exe"
+            (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
+            (fun line ->
+                out line
+                match checkLine line with
+                | None ->
+                    ()
+                | Some error ->
+                    sendEmail error
+                    reboot ())

@@ -8,14 +8,24 @@ module Main =
     let start config =
         let ipTimer = PublicIp.startCheck out config
         let monitorWait, monitorStop = Monitor.start out config
+        System.AppDomain.CurrentDomain.ProcessExit.Add
+            (fun _ -> try monitorStop () with _ -> ())
         monitorWait ()
         ipTimer.Stop ()
 
     [<EntryPoint>]
     let main argv =
+        out ""
+        out "==================================================================="
+        out "    polly 2.0 - katatunix@gmail.com"
+        out "    If you love this tool, you can buy me a cup of coffee via:"
+        out "        BTC: 18gmEFLjEVhXz3P8cmubsGSQRZfssWyg7o"
+        out "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
+        out "==================================================================="
+        out ""
         match Config.load () with
         | Error msg ->
-            printfn "Error: %s" msg
+            out (sprintf "Error: %s" msg)
             1
         | Ok config ->
             start config

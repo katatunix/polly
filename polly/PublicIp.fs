@@ -26,6 +26,7 @@ module PublicIp =
         with _ -> ()
 
     let private checkIp out senderInfo subscribedEmails =
+        out "Get public IP ..."
         match get () with
         | Error msg ->
             out (sprintf "Could not get public IP: %s" msg)

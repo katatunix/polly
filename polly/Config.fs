@@ -8,8 +8,8 @@ module Config =
 
     type Json = JsonProvider<"""
         {
-            "ClaymoresPath" : "D:/Claymores/EthDcrMiner64.exe",
-            "ClaymoresArgs" : "-esm 1 -gser 0",
+            "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
+            "MinerArgs" : "-esm 1 -gser 0",
             "Polly" : {
                 "SmtpHost" : "smtp.gmail.com",
                 "SmtpPort" : 587,

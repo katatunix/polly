@@ -3,6 +3,7 @@
 open System.Diagnostics
 open System.Threading
 open System.Text
+open System.IO
 
 module Process =
 
@@ -35,7 +36,7 @@ module Process =
 
         let thread = Thread (ThreadStart handle)
 
-        let start   = (fun () -> thread.Start ())
+        thread.Start ()
         let wait    = (fun () -> thread.Join ())
         let stop    = (fun () -> p.Kill ())
-        (start, wait, stop)
+        (wait, stop)
