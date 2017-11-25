@@ -7,7 +7,7 @@ open NghiaBui.Common.Misc
 
 module PublicIp =
 
-    let private IP_FILE = "ip.dat"
+    let private IP_FILE = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "ip.dat")
 
     let private get () =
         tryHard 3 1000 (fun _ -> Http.RequestString "http://api.ipify.org/")

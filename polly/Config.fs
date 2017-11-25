@@ -6,6 +6,8 @@ open Email
 
 module Config =
 
+    let private CONFIG_FILE = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
+
     type Json = JsonProvider<"""
         {
             "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
@@ -29,7 +31,7 @@ module Config =
 
     let load () =
         try
-            File.ReadAllText("config.json")
+            File.ReadAllText CONFIG_FILE
             |> Json.Parse
             |> Ok
         with ex ->

@@ -8,7 +8,7 @@ Run this tool on your mining rig, when any of predefined error indicators happen
 * Periodically (10 minutes) notify by email the public IP address of the rig (if the IP is new).
 
 ## Usage
-* Copy folder `/build/polly` to your rig.
+* Copy folder `/release/polly` to your rig.
 * Open file `config.json` and modify it following the template below:
 ```
 {
