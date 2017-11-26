@@ -2,6 +2,7 @@
 
 open System
 open System.Diagnostics
+open NghiaBui.Common.Text
 
 module Monitor =
 
@@ -33,7 +34,8 @@ module Monitor =
             (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
             (fun line ->
                 out line
-                match checkLine line with
+                let cleanLine = cleanAnsiEscapeCode line
+                match checkLine cleanLine with
                 | None ->
                     ()
                 | Some error ->
