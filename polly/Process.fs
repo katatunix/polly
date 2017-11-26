@@ -3,11 +3,10 @@
 open System.Diagnostics
 open System.Threading
 open System.Text
-open System.IO
 
 module Process =
 
-    let run filename args onLine =
+    let create filename args onLine =
         let p = new Process ()
         p.StartInfo.FileName <- filename
         p.StartInfo.Arguments <- args
@@ -31,12 +30,14 @@ module Process =
             p.BeginErrorReadLine ()
 
             p.WaitForExit ()
+
             mreOut.WaitOne () |> ignore
             mreErr.WaitOne () |> ignore
 
         let thread = Thread (ThreadStart handle)
 
-        thread.Start ()
-        let wait    = (fun () -> thread.Join ())
-        let stop    = (fun () -> p.Kill ())
-        (wait, stop)
+        let start   = fun () -> thread.Start ()
+        let wait    = fun () -> thread.Join ()
+        let stop    = fun () -> p.Kill ()
+
+        start, wait, stop

@@ -1,7 +1,6 @@
 ﻿namespace polly
 
-open System
-open System.Diagnostics
+open System.Threading
 open NghiaBui.Common.Text
 
 module Monitor =
@@ -15,29 +14,89 @@ module Monitor =
         |> Array.tryFind line.Contains
         |> Option.map (fun indicator -> { Reason = indicator; Log = line })
 
-    let private sendEmail senderInfo emails (error : Error)  =
+    let private sendRebootEmail senderInfo emails (error : Error)  =
         try
             for email in emails do
                 Email.sendReboot senderInfo email error.Reason error.Log
         with _ -> ()
 
-    let private reboot () =
-        Process.Start ("shutdown", "/r /t 1") |> ignore
+    let private sendCrashEmail senderInfo emails =
+        try
+            for email in emails do
+                Email.sendCrash senderInfo email
+        with _ -> ()
 
-    let start out config =
+    let private reboot () =
+        System.Diagnostics.Process.Start ("shutdown", "/r /t 1") |> ignore
+
+    let private prepare out config =
         let senderInfo = Config.extractSenderInfo config
         let checkLine = checkLine config.ErrorIndicators
-        let sendEmail = sendEmail senderInfo config.SubscribedEmails
+        let sendRebootEmail = sendRebootEmail senderInfo config.SubscribedEmails
 
-        Process.run
+        Process.create
             "winpty.exe"
             (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
             (fun line ->
                 out line
-                let cleanLine = cleanAnsiEscapeCode line
-                match checkLine cleanLine with
+                match line |> cleanAnsiEscapeCode |> checkLine with
                 | None ->
                     ()
                 | Some error ->
-                    sendEmail error
+                    sendRebootEmail error
                     reboot ())
+
+    let startOnce out config =
+        let start, wait, stop = prepare out config
+        start ()
+        wait, stop
+
+    type private SimpleChannel = AsyncReplyChannel<unit>
+
+    type private Message =
+        | Start_ThenSaveStop of (unit -> unit) * (unit -> unit) * SimpleChannel
+        | Stop of SimpleChannel
+
+    let startForever out config =
+        let mailbox = MailboxProcessor.Start (fun mailbox ->
+            let rec handle stopOp =
+                async {
+                    let! message = mailbox.Receive ()
+                    match message with
+                    | Start_ThenSaveStop (start, stop, channel) ->
+                        start ()
+                        channel.Reply ()
+                        return! active stop
+                    | Stop channel ->
+                        stopOp |> Option.iter (fun stop -> stop ())
+                        channel.Reply ()
+                        return () }
+            and idle () = handle None
+            and active stop = handle (Some stop)
+            idle ())
+
+        let stop = fun () -> mailbox.PostAndReply Stop
+
+        let senderInfo = Config.extractSenderInfo config
+        let sendCrashEmail () = sendCrashEmail senderInfo config.SubscribedEmails
+
+        let rec loop () =
+            let start, wait, stop = prepare out config
+            mailbox.PostAndReply (fun channel -> Start_ThenSaveStop (start, stop, channel))
+            wait ()
+
+            out ""
+            out "=================================================================="
+            out "          THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
+            out "=================================================================="
+            out ""
+
+            sendCrashEmail ()
+
+            loop ()
+
+        let thread = Thread (ThreadStart loop)
+        thread.Start ()
+        let wait = fun () -> thread.Join ()
+
+        wait, stop

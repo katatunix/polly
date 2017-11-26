@@ -16,7 +16,6 @@ module Email =
     let private send (senderInfo : SenderInfo) (toAddress : string) subject body =
         let fromAddress = MailAddress (senderInfo.Email, senderInfo.DisplayedName)
         let toAddress = MailAddress toAddress
-        let fromPassword = senderInfo.Password
         use smtp =
             new SmtpClient (
                 Host = senderInfo.SmtpHost,
@@ -24,7 +23,7 @@ module Email =
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = NetworkCredential (fromAddress.Address, fromPassword) )
+                Credentials = NetworkCredential (fromAddress.Address, senderInfo.Password) )
         use message = new MailMessage (fromAddress, toAddress, Subject = subject, Body = body)
         smtp.Send message
 
@@ -48,4 +47,9 @@ module Email =
         let ip = sprintf "IP address = %s" ip
         let body = sprintf "%s\n%s\n" computer ip
 
+        send senderInfo toAddress subject body
+
+    let sendCrash senderInfo toAddress =
+        let subject = "Crash notification"
+        let body = makeComputerText ()
         send senderInfo toAddress subject body
