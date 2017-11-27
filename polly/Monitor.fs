@@ -16,14 +16,12 @@ module Monitor =
 
     let private sendRebootEmail senderInfo emails (error : Error)  =
         try
-            for email in emails do
-                Email.sendReboot senderInfo email error.Reason error.Log
+            Email.sendReboot senderInfo emails error.Reason error.Log
         with _ -> ()
 
     let private sendCrashEmail senderInfo emails =
         try
-            for email in emails do
-                Email.sendCrash senderInfo email
+            Email.sendCrash senderInfo emails
         with _ -> ()
 
     let private reboot () =

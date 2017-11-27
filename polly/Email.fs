@@ -13,9 +13,14 @@ module Email =
         Password : string
         DisplayedName : string }
 
-    let private send (senderInfo : SenderInfo) (toAddress : string) subject body =
-        let fromAddress = MailAddress (senderInfo.Email, senderInfo.DisplayedName)
-        let toAddress = MailAddress toAddress
+    let private send (senderInfo : SenderInfo) (toAddresses : string []) subject body =
+        use message = new MailMessage ()
+        message.From <- MailAddress (senderInfo.Email, senderInfo.DisplayedName)
+        for toAddress in toAddresses do
+            message.To.Add (toAddress)
+        message.Subject <- subject
+        message.Body <- body
+
         use smtp =
             new SmtpClient (
                 Host = senderInfo.SmtpHost,
@@ -23,14 +28,14 @@ module Email =
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = NetworkCredential (fromAddress.Address, senderInfo.Password) )
-        use message = new MailMessage (fromAddress, toAddress, Subject = subject, Body = body)
+                Credentials = NetworkCredential (senderInfo.Email, senderInfo.Password) )
+
         smtp.Send message
 
     let private makeComputerText () =
         sprintf "Computer = %s" Environment.MachineName
 
-    let sendReboot senderInfo toAddress reason log =
+    let sendReboot senderInfo toAddresses reason log =
         let subject = "Reboot notification"
 
         let computer = makeComputerText ()
@@ -38,18 +43,18 @@ module Email =
         let log = sprintf "\nLog = %s" log
         let body = sprintf "%s%s%s" computer reason log
 
-        send senderInfo toAddress subject body
+        send senderInfo toAddresses subject body
 
-    let sendPublicIp senderInfo toAddress ip =
+    let sendPublicIp senderInfo toAddresses ip =
         let subject = "New IP address"
 
         let computer = makeComputerText ()
         let ip = sprintf "IP address = %s" ip
         let body = sprintf "%s\n%s\n" computer ip
 
-        send senderInfo toAddress subject body
+        send senderInfo toAddresses subject body
 
-    let sendCrash senderInfo toAddress =
+    let sendCrash senderInfo toAddresses =
         let subject = "Crash notification"
         let body = makeComputerText ()
-        send senderInfo toAddress subject body
+        send senderInfo toAddresses subject body

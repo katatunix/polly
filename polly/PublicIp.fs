@@ -20,12 +20,11 @@ module PublicIp =
 
     let private sendPublicIp out senderInfo emails ip =
         try
-            for email in emails do
-                out (sprintf "Send public IP to %s ..." email)
-                Email.sendPublicIp senderInfo email ip
+            out "Send public IP ..."
+            Email.sendPublicIp senderInfo emails ip
         with _ -> ()
 
-    let private checkIp out senderInfo subscribedEmails =
+    let private checkIp out senderInfo emails =
         out "Get public IP ..."
         match get () with
         | Error msg ->
@@ -33,7 +32,7 @@ module PublicIp =
         | Ok ip ->
             out (sprintf "Public IP = %s" ip)
             if ip <> load () then
-                sendPublicIp out senderInfo subscribedEmails ip
+                sendPublicIp out senderInfo emails ip
                 save ip
 
     let startCheck out config =
