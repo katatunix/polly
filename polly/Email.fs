@@ -33,14 +33,14 @@ module Email =
         smtp.Send message
 
     let private makeComputerText () =
-        sprintf "Computer = %s" Environment.MachineName
+        sprintf "[Computer] %s" Environment.MachineName
 
     let sendReboot senderInfo toAddresses reason log =
         let subject = "Reboot notification"
 
         let computer = makeComputerText ()
-        let reason = sprintf "\nReason = %s" reason
-        let log = sprintf "\nLog = %s" log
+        let reason = sprintf "\n[Reason] %s" reason
+        let log = sprintf "\n[Log] %s" log
         let body = sprintf "%s%s%s" computer reason log
 
         send senderInfo toAddresses subject body
@@ -49,7 +49,7 @@ module Email =
         let subject = "New IP address"
 
         let computer = makeComputerText ()
-        let ip = sprintf "IP address = %s" ip
+        let ip = sprintf "[IP address] %s" ip
         let body = sprintf "%s\n%s\n" computer ip
 
         send senderInfo toAddresses subject body
