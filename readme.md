@@ -13,32 +13,42 @@ Run this tool on your mining rig, when any of predefined error indicators happen
 * Open file `config.json` and modify it following the template below:
 ```
 {
-    "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
-    "MinerArgs" : "-esm 1 -gser 0",
+    "MinerPath" : "d:/Claymores10.2/EthDcrMiner64.exe",
+    "MinerArgs" : "",
     "Polly" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
-        "Email" : "pollymonitor2@gmail.com",
+        "Address" : "pollymonitor2@gmail.com",
         "Password" : "test",
         "DisplayedName" : "Polly"
     },
-    "SubscribedEmails" : [
+    "Subscribes" : [
         "apple@gmail.com",
         "banana@yahoo.com"
     ],
-    "ErrorIndicators" : [
-        "got incorrect share",
-        "fan=0%",
-        "gpu error",
-        "you need to restart miner",
-        "cuda error",
-        "opencl error",
-        "gpuminer cu_k1 failed",
-        "gpuminer cu_kx failed",
-        "gpuminer cu_k01 failed",
-        "gpuminer kx failed",
-        "cannot get fan speed"
-    ]
+    "Profiles" : [
+        {
+            "Bad" : [ "ETH - Total Speed: 11", "ETH - Total Speed: 12", "ETH - Total Speed: 13" ],
+            "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 14" ] }
+        },
+        {
+            "Bad" : [
+                "got incorrect share",
+                "fan=0%",
+                "gpu error",
+                "you need to restart miner",
+                "cuda error",
+                "opencl error",
+                "gpuminer cu_k1 failed",
+                "gpuminer cu_kx failed",
+                "gpuminer cu_k01 failed",
+                "gpuminer kx failed",
+                "cannot get fan speed"
+            ]
+        }
+    ],
+    "CrashToleranceMinutes" : 1,
+    "PublicIpCheckMinutes" : 30
 }
 ```
 * Most of options are self-explanatory. Regarding the `Polly` option, it is recommended to use Gmail. You should change the `pollymonitor2@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/lesssecureapps

@@ -1,10 +1,9 @@
-rm -dfr release
+from=polly/build
+to=release/polly
 
-mkdir -p release/polly
-cp -Rpv polly/build/* release/polly
-
-rm release/polly/*.xml
-rm release/polly/*.pdb
-rm release/polly/System.ValueTuple.*
-
-cp -pv readme.md release/polly
+cp -pv $from/FSharp.Core.dll $to
+cp -pv $from/FSharp.Data.dll $to
+cp -pv $from/NghiaBui.Common.dll $to
+cp -pv $from/polly.exe $to
+cp -pv $from/polly.exe.config $to
+cp -pv readme.md $to
