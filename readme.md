@@ -6,7 +6,7 @@ Run this tool on your mining rig, when any of predefined error indicators happen
 * Continuously check miner's console output to detect errors.
 * Before rebooting, notify by email to a list of subscribed email addresses.
 * Start miner again if it exited (crashed).
-* Periodically (10 minutes) notify by email the public IP address of the rig (if the IP is new).
+* Periodically notify by email the public IP address of the rig (if the IP is new).
 
 ## Usage
 * Copy folder `/release/polly` to your rig.
