@@ -6,7 +6,7 @@ open Email
 
 module Config =
 
-    let private CONFIG_FILE = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
+    let private CONFIG_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
 
     type Json = JsonProvider<"""
         {
@@ -15,18 +15,20 @@ module Config =
             "Polly" : {
                 "SmtpHost" : "smtp.gmail.com",
                 "SmtpPort" : 587,
-                "Email" : "pollymonitor2@gmail.com",
+                "Address" : "pollymonitor2@gmail.com",
                 "Password" : "test",
                 "DisplayedName" : "Polly"
             },
-            "SubscribedEmails" : [
+            "Subscribes" : [
                 "apple@gmail.com",
                 "banana@yahoo.com"
             ],
-            "ErrorIndicators" : [
-                "fan=0%",
-                "got incorrect share"
-            ]
+            "Profiles" : [
+                { "Bad" : ["speed = 8"], "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] } },
+                { "Bad" : ["fan=0%"] }
+            ],
+            "CrashToleranceMinutes" : 1,
+            "PublicIpCheckMinutes" : 30
         }""">
 
     let load () =
@@ -41,6 +43,6 @@ module Config =
         let p = config.Polly
         {   SmtpHost        = p.SmtpHost
             SmtpPort        = p.SmtpPort
-            Email           = p.Email
+            Address         = p.Address
             Password        = p.Password
             DisplayedName   = p.DisplayedName }

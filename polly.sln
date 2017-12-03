@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "polly", "polly\polly.fsproj", "{B167AF53-5B95-457F-8DB0-42F93C335F40}"
 EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "polly.tests", "polly.tests\polly.tests.fsproj", "{A3597170-00BD-4371-A5FB-36CDFA555030}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,5 +15,9 @@ Global
 		{B167AF53-5B95-457F-8DB0-42F93C335F40}.Debug|x86.Build.0 = Debug|x86
 		{B167AF53-5B95-457F-8DB0-42F93C335F40}.Release|x86.ActiveCfg = Release|x86
 		{B167AF53-5B95-457F-8DB0-42F93C335F40}.Release|x86.Build.0 = Release|x86
+		{A3597170-00BD-4371-A5FB-36CDFA555030}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A3597170-00BD-4371-A5FB-36CDFA555030}.Debug|x86.Build.0 = Debug|Any CPU
+		{A3597170-00BD-4371-A5FB-36CDFA555030}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3597170-00BD-4371-A5FB-36CDFA555030}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

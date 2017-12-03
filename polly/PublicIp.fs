@@ -7,7 +7,7 @@ open NghiaBui.Common.Misc
 
 module PublicIp =
 
-    let private IP_FILE = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "ip.dat")
+    let private IP_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "ip.dat")
 
     let private get () =
         tryHard 3 1000 (fun _ -> Http.RequestString "http://api.ipify.org/")
@@ -37,10 +37,10 @@ module PublicIp =
 
     let startCheck out config =
         let senderInfo = Config.extractSenderInfo config
-        let subscribedEmails = config.SubscribedEmails
-        checkIp out senderInfo subscribedEmails
 
-        let timer = new Timer(10 * 60 * 1000 |> float)
-        timer.Elapsed.Add (fun _ -> checkIp out senderInfo subscribedEmails)
+        checkIp out senderInfo config.Subscribes
+
+        let timer = new Timer(config.PublicIpCheckMinutes * 60000 |> float)
+        timer.Elapsed.Add (fun _ -> checkIp out senderInfo config.Subscribes)
         timer.Start ()
         timer

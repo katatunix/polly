@@ -9,13 +9,13 @@ module Email =
     type SenderInfo = {
         SmtpHost : string
         SmtpPort : int
-        Email : string
+        Address : string
         Password : string
         DisplayedName : string }
 
     let private send (senderInfo : SenderInfo) (toAddresses : string []) subject body =
         use message = new MailMessage ()
-        message.From <- MailAddress (senderInfo.Email, senderInfo.DisplayedName)
+        message.From <- MailAddress (senderInfo.Address, senderInfo.DisplayedName)
         for toAddress in toAddresses do
             message.To.Add (toAddress)
         message.Subject <- subject
@@ -28,7 +28,7 @@ module Email =
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = NetworkCredential (senderInfo.Email, senderInfo.Password) )
+                Credentials = NetworkCredential (senderInfo.Address, senderInfo.Password) )
 
         smtp.Send message
 

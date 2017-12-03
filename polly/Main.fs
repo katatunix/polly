@@ -7,9 +7,9 @@ module Main =
 
     let start config =
         let ipTimer = PublicIp.startCheck out config
-        let monitorWait, monitorStop = Monitor.startForever out config
+        let monitorWait, monitorStop = MonitorRun.forever out config
         System.AppDomain.CurrentDomain.ProcessExit.Add
-            (fun _ -> out "Quit [1] ..."; try monitorStop () with _ -> (); out "Quit [2] ...")
+            (fun _ -> try monitorStop () with _ -> ())
         monitorWait ()
         ipTimer.Stop ()
 
@@ -17,7 +17,7 @@ module Main =
     let main argv =
         out ""
         out "=================================================================="
-        out "    polly 2.1 - katatunix@gmail.com"
+        out "    polly 2.2 - katatunix@gmail.com"
         out "    If you love this tool, you can buy me a cup of coffee via:"
         out "        BTC: 18gmEFLjEVhXz3P8cmubsGSQRZfssWyg7o"
         out "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
