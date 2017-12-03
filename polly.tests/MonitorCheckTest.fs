@@ -22,7 +22,7 @@ module MonitorCheckTest =
         Assert.IsFalse fired
 
     [<Test>]
-    let ``when a line is error and no telerance, then fire`` () =
+    let ``when a line is error and no tolerance, then fire`` () =
         let profiles = [|
             { Bad = [| "fan=0%" |]; Tolerance = None }
         |]
@@ -36,7 +36,7 @@ module MonitorCheckTest =
         Assert.IsTrue fired
 
     [<Test>]
-    let ``when a line is error and over telerance duration, then fire`` () =
+    let ``when a line is error and over tolerance duration, then fire`` () =
         let profiles = [|
             { Bad = [| "fan=0%" |]; Tolerance = Some { Duration = TimeMs 1000L; Good = [| "fan=20%"|] } }
         |]
@@ -50,7 +50,7 @@ module MonitorCheckTest =
         Assert.IsTrue fired
 
     [<Test>]
-    let ``when a line is error but has good line before telerance duration, then no fire`` () =
+    let ``when a line is error but has good line before tolerance duration, then no fire`` () =
         let profiles = [|
             { Bad = [| "fan=0%" |]; Tolerance = Some { Duration = TimeMs 1000L; Good = [| "fan=20%" |] } }
         |]
