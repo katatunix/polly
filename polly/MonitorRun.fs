@@ -30,27 +30,27 @@ module MonitorRun =
         | Start of (unit -> unit) * (unit -> unit) * SimpleChannel
         | Stop of SimpleChannel
 
+    let private agentForeverBody (mailbox : MailboxProcessor<Message>) = 
+        let rec loop stopOp =
+            async {
+                let! message = mailbox.Receive ()
+                match message with
+                | Start (start, stop, channel) ->
+                    start ()
+                    channel.Reply ()
+                    return! loop (Some stop)
+                | Stop channel ->
+                    stopOp |> Option.iter (fun stop -> stop ())
+                    channel.Reply () }
+        loop None
+
     let forever config =
+        let agentForever = MailboxProcessor.Start agentForeverBody
         let senderInfo = Config.extractSenderInfo config
-
-        let agentForever = MailboxProcessor.Start (fun mailbox ->
-            let rec loop stopOp =
-                async {
-                    let! message = mailbox.Receive ()
-                    match message with
-                    | Start (start, stop, channel) ->
-                        start ()
-                        channel.Reply ()
-                        return! loop (Some stop)
-                    | Stop channel ->
-                        stopOp |> Option.iter (fun stop -> stop ())
-                        channel.Reply () }
-            loop None)
-
         let fireWith error =
+            printSpecial (sprintf "FIRE!!! REASON: %s" error.Reason)
             sendFireEmail senderInfo config.Subscribes error
             fire ()
-
         let agentCheck = MonitorCheck.Agent (extractProfiles config, fireWith)
 
         let rec loop timeMs =
@@ -67,7 +67,6 @@ module MonitorRun =
             let curTimeMs = currentUnixTimeMs ()
             let upTimeMs = curTimeMs - timeMs
             if upTimeMs < (int64 config.ExitToleranceMinutes) * 60000L then
-                printSpecial "THE MINER HAS BEEN EXITED TOO QUICKLY, FIRE!"
                 fireWith { Reason = "Exit too quickly"; Log = "<No log>" }
             else
                 printSpecial "THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
