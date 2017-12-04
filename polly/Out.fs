@@ -15,8 +15,7 @@ module Out =
             s.ToString ()
         let hr = "==================================================================";
         let spaces1 = spaces ((hr.Length - text.Length) / 2)
-        let spaces2 = spaces (hr.Length - spaces1.Length)
         hr + "\n" +
-        spaces1 + text + spaces2 + "\n" +
+        spaces1 + text + "\n" +
         hr + "\n"
         |> print
