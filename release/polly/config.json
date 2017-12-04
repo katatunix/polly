@@ -33,6 +33,6 @@
             ]
         }
     ],
-    "CrashToleranceMinutes" : 1,
+    "ExitToleranceMinutes" : 1,
     "PublicIpCheckMinutes" : 30
 }
