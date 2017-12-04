@@ -14,8 +14,8 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
 * Open file `config.json` and modify it following the template below:
 ```
 {
-    "MinerPath" : "d:/Claymores10.2/EthDcrMiner64.exe",
-    "MinerArgs" : "",
+    "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
+    "MinerArgs" : "-esm 1 -gser 0",
     "Polly" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
