@@ -53,14 +53,17 @@ module MonitorCheck =
         let mailbox = MailboxProcessor.Start (fun mailbox ->
             let rec loop states =
                 async {
-                    let! msg = mailbox.Receive ()
+                    let! msg = mailbox.TryReceive (60000)
                     match msg with
-                    | Line line ->
+                    | None ->
+                        let states' = update states ""
+                        return! loop states'
+                    | Some (Line line) ->
                         let states' = update states line
                         return! loop states'
-                    | Reset ->
+                    | Some Reset ->
                         return! loop initialStates
-                    | Stop channel ->
+                    | Some (Stop channel) ->
                         channel.Reply ()
                         return () }
             loop initialStates)
