@@ -1,32 +1,27 @@
 ﻿namespace polly
 
+open Out
+
 module Main =
-
-    let o = obj ()
-    let out x = lock o (fun _ -> printfn "%s" x)
-
-    let start config =
-        let ipTimer = PublicIp.startCheck out config
-        let monitorWait, monitorStop = MonitorRun.forever out config
-        System.AppDomain.CurrentDomain.ProcessExit.Add
-            (fun _ -> try monitorStop () with _ -> ())
-        monitorWait ()
-        ipTimer.Stop ()
 
     [<EntryPoint>]
     let main argv =
-        out ""
-        out "=================================================================="
-        out "    polly 2.2 - katatunix@gmail.com"
-        out "    If you love this tool, you can buy me a cup of coffee via:"
-        out "        BTC: 18gmEFLjEVhXz3P8cmubsGSQRZfssWyg7o"
-        out "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
-        out "=================================================================="
-        out ""
+        println ""
+        println "=================================================================="
+        println "    polly 2.3 - katatunix@gmail.com"
+        println "    If you love this tool, you can buy me a cup of coffee via:"
+        println "        BTC: 18gmEFLjEVhXz3P8cmubsGSQRZfssWyg7o"
+        println "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
+        println "=================================================================="
+        println ""
         match Config.load () with
         | Error msg ->
-            out (sprintf "Error: %s" msg)
+            println (sprintf "Error: %s" msg)
             1
         | Ok config ->
-            start config
+            let ipTimer = PublicIp.startCheck config
+            let monitorWait, monitorStop = MonitorRun.forever config
+            System.AppDomain.CurrentDomain.ProcessExit.Add (fun _ -> monitorStop ())
+            monitorWait ()
+            ipTimer.Stop ()
             0

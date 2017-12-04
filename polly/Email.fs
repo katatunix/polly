@@ -35,13 +35,13 @@ module Email =
     let private makeComputerText () =
         sprintf "[Computer] %s" Environment.MachineName
 
-    let sendReboot senderInfo toAddresses reason log =
-        let subject = "Reboot notification"
+    let sendFire senderInfo toAddresses reason log =
+        let subject = "Fire notification"
 
         let computer = makeComputerText ()
-        let reason = sprintf "\n[Reason] %s" reason
-        let log = sprintf "\n[Log] %s" log
-        let body = sprintf "%s%s%s" computer reason log
+        let reason = sprintf "[Reason] %s" reason
+        let log = sprintf "[Log] %s" log
+        let body = sprintf "%s\n%s\n%s" computer reason log
 
         send senderInfo toAddresses subject body
 
@@ -50,11 +50,15 @@ module Email =
 
         let computer = makeComputerText ()
         let ip = sprintf "[IP address] %s" ip
-        let body = sprintf "%s\n%s\n" computer ip
+        let body = sprintf "%s\n%s" computer ip
 
         send senderInfo toAddresses subject body
 
-    let sendCrash senderInfo toAddresses =
-        let subject = "Crash notification"
-        let body = makeComputerText ()
+    let sendExit senderInfo toAddresses upTimeMs =
+        let subject = "Exit notification"
+
+        let computer = makeComputerText ()
+        let upTime = sprintf "[Up time] %A" (TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan)
+        let body = sprintf "%s\n%s" computer upTime
+
         send senderInfo toAddresses subject body

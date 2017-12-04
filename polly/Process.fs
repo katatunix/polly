@@ -38,6 +38,6 @@ module Process =
 
         let start   = fun () -> thread.Start ()
         let wait    = fun () -> thread.Join ()
-        let stop    = fun () -> p.Kill ()
+        let stop    = fun () -> try p.Kill () with _ -> ()
 
         start, wait, stop

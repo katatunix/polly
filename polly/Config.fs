@@ -27,7 +27,7 @@ module Config =
                 { "Bad" : ["speed = 8"], "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] } },
                 { "Bad" : ["fan=0%"] }
             ],
-            "CrashToleranceMinutes" : 1,
+            "ExitToleranceMinutes" : 1,
             "PublicIpCheckMinutes" : 30
         }""">
 

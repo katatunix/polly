@@ -6,53 +6,52 @@ open System.Threading
 open NghiaBui.Common.Text
 open NghiaBui.Common.Time
 open MonitorCommon
+open Out
 
 module MonitorRun =
 
-    let private sendRebootEmails senderInfo emails (error : Error)  =
+    let private sendFireEmail senderInfo toAddresses (error : Error)  =
         try
-            Email.sendReboot senderInfo emails error.Reason error.Log
+            Email.sendFire senderInfo toAddresses error.Reason error.Log
         with _ -> ()
 
-    let private sendCrashEmails senderInfo emails =
+    let private sendExitEmail senderInfo toAddresses upTimeMs =
         try
-            Email.sendCrash senderInfo emails
+            Email.sendExit senderInfo toAddresses upTimeMs
         with _ -> ()
 
-    let private reboot () =
-        System.Diagnostics.Process.Start ("shutdown", "/r /t 1") |> ignore
+    let private fire () =
+        let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "fire.bat")
+        System.Diagnostics.Process.Start path |> ignore
 
     type private SimpleChannel = AsyncReplyChannel<unit>
 
     type private Message =
-        | Start_ThenSaveStop of (unit -> unit) * (unit -> unit) * SimpleChannel
+        | Start of (unit -> unit) * (unit -> unit) * SimpleChannel
         | Stop of SimpleChannel
 
-    let private agentForeverBody (mailbox : MailboxProcessor<Message>) =
-        let rec handle stopOp =
-            async {
-                let! message = mailbox.Receive ()
-                match message with
-                | Start_ThenSaveStop (start, stop, channel) ->
-                    start ()
-                    channel.Reply ()
-                    return! active stop
-                | Stop channel ->
-                    stopOp |> Option.iter (fun stop -> stop ())
-                    channel.Reply ()
-                    return () }
-        and idle () = handle None
-        and active stop = handle (Some stop)
-        idle ()
-
-    let forever out config =
-        let agentForever = MailboxProcessor.Start agentForeverBody
-
+    let forever config =
         let senderInfo = Config.extractSenderInfo config
 
-        let agentCheck = MonitorCheck.Agent (extractProfiles config, (fun error ->
-            sendRebootEmails senderInfo config.Subscribes error
-            reboot ()))
+        let agentForever = MailboxProcessor.Start (fun mailbox ->
+            let rec loop stopOp =
+                async {
+                    let! message = mailbox.Receive ()
+                    match message with
+                    | Start (start, stop, channel) ->
+                        start ()
+                        channel.Reply ()
+                        return! loop (Some stop)
+                    | Stop channel ->
+                        stopOp |> Option.iter (fun stop -> stop ())
+                        channel.Reply () }
+            loop None)
+
+        let fireWith error =
+            sendFireEmail senderInfo config.Subscribes error
+            fire ()
+
+        let agentCheck = MonitorCheck.Agent (extractProfiles config, fireWith)
 
         let rec loop timeMs =
             let start, wait, stop =
@@ -60,28 +59,21 @@ module MonitorRun =
                     (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "winpty.exe"))
                     (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
                     (fun line ->
-                        out line
+                        println line
                         line |> cleanAnsiEscapeCode |> agentCheck.Update)
-
-            agentForever.PostAndReply (fun channel -> Start_ThenSaveStop (start, stop, channel))
-
+            agentForever.PostAndReply (fun channel -> Start (start, stop, channel))
             wait ()
 
-            sendCrashEmails senderInfo config.Subscribes
-
-            let curTime = currentUnixTimeMs ()
-            if curTime - timeMs < (int64 config.CrashToleranceMinutes) * 60000L then
-                let error = { Reason = "Crash too frequently"; Log = "<No log>" }
-                sendRebootEmails senderInfo config.Subscribes error
-                reboot ()
+            let curTimeMs = currentUnixTimeMs ()
+            let upTimeMs = curTimeMs - timeMs
+            if upTimeMs < (int64 config.ExitToleranceMinutes) * 60000L then
+                printSpecial "THE MINER HAS BEEN EXITED TOO QUICKLY, FIRE!"
+                fireWith { Reason = "Exit too quickly"; Log = "<No log>" }
             else
-                out ""
-                out "=================================================================="
-                out "          THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
-                out "=================================================================="
-                out ""
+                printSpecial "THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
+                sendExitEmail senderInfo config.Subscribes upTimeMs
                 agentCheck.Reset ()
-                loop curTime
+                loop curTimeMs
 
         let thread = Thread (ThreadStart (fun _ -> currentUnixTimeMs () |> loop))
         thread.Start ()

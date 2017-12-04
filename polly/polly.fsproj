@@ -57,6 +57,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Out.fs" />
     <Compile Include="Process.fs" />
     <Compile Include="Email.fs" />
     <Compile Include="Config.fs" />
