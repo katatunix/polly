@@ -19,6 +19,9 @@
         },
         {
             "Bad" : [
+                "cannot get current temperature",
+                "unspecified launch failure",
+                "an illegal instruction was encountered",
                 "got incorrect share",
                 "fan=0%",
                 "gpu error",

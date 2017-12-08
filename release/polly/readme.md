@@ -34,6 +34,9 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
         },
         {
             "Bad" : [
+                "cannot get current temperature",
+                "unspecified launch failure",
+                "an illegal instruction was encountered",
                 "got incorrect share",
                 "fan=0%",
                 "gpu error",
