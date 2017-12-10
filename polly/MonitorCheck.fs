@@ -29,7 +29,7 @@ module MonitorCheck =
         | Active (error, (TimeMs oldTime)) ->
             let { Duration = TimeMs duration; Good = good } = profile.Tolerance.Value
             if curTime - oldTime > duration then
-                Over error
+                Over { error with UpTime = curTime - beginTime |> TimeMs }
             elif line.IsSome && good |> Array.exists line.Value.Contains then
                 Idle
             else

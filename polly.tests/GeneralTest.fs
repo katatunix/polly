@@ -6,5 +6,6 @@ module GeneralTest =
 
     [<Test>]
     let `` `` () =
-        let ts = TimeSpan 100000000000L
-        Assert.AreEqual ("00.02:46:40", ts.ToString @"dd\.hh\:mm\:ss")
+        let ms = 3600000L * 24L + 3600000L
+        let ts = TimeSpan.TicksPerMillisecond * ms |> TimeSpan
+        Assert.AreEqual ("01.01:00:00", ts.ToString @"dd\.hh\:mm\:ss")
