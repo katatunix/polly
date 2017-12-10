@@ -2,11 +2,12 @@
 
 module MonitorCommon =
 
+    type TimeMs = TimeMs of int64
+
     type Error = {
         Reason : string
+        UpTime : TimeMs
         Log : string }
-
-    type TimeMs = TimeMs of int64
 
     type Tolerance = {
         Duration : TimeMs

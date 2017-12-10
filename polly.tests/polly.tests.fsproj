@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GeneralTest.fs" />
     <Compile Include="OutTest.fs" />
     <Compile Include="MonitorCheckTest.fs" />
     <None Include="packages.config" />

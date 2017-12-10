@@ -1,5 +1,7 @@
 ﻿namespace polly
 
+open System
+open NghiaBui.Common.Time
 open MonitorCommon
 
 module MonitorCheck =
@@ -9,7 +11,7 @@ module MonitorCheck =
         | Active of (Error * TimeMs)
         | Over of Error
 
-    let private updateState (TimeMs curTime) (line : string option) profile state =
+    let private updateState (TimeMs beginTime) (TimeMs curTime) (line : string option) profile state =
         match state with
         | Idle ->
             match line with
@@ -18,7 +20,7 @@ module MonitorCheck =
                 match profile.Bad |> Array.tryFind line.Contains with
                 | None -> state
                 | Some reason ->
-                    let error = { Reason = reason; Log = line }
+                    let error = { Reason = reason; UpTime = curTime - beginTime |> TimeMs; Log = line }
                     match profile.Tolerance with
                     | None ->
                         Over error
@@ -41,9 +43,12 @@ module MonitorCheck =
         | Stop of AsyncReplyChannel<unit>
 
     type Agent (profiles, fire) =
-        let update line states =
-            let curTime = NghiaBui.Common.Time.currentUnixTimeMs () |> TimeMs
-            let states' = Array.map2 (updateState curTime line) profiles states
+
+        let cur () = currentUnixTimeMs () |> TimeMs
+
+        let update beginTime line states =
+            let curTime = cur ()
+            let states' = Array.map2 (updateState beginTime curTime line) profiles states
             states'
             |> Array.tryPick (function | Over error -> Some error | _ -> None)
             |> Option.iter fire
@@ -52,22 +57,26 @@ module MonitorCheck =
         let initialStates = Array.replicate (profiles |> Array.length) Idle
 
         let mailbox = MailboxProcessor.Start (fun mailbox ->
-            let rec loop states =
+            let rec loop beginTime states =
                 async {
                     let! msg = mailbox.TryReceive 60000
                     match msg with
                     | None ->
-                        let states' = states |> update None
-                        return! loop states'
+                        let states' = states |> update beginTime None
+                        return! loop beginTime states'
+
                     | Some (Line line) ->
-                        let states' = states |> update (Some line)
-                        return! loop states'
+                        let states' = states |> update beginTime (Some line)
+                        return! loop beginTime states'
+
                     | Some Reset ->
-                        return! loop initialStates
+                        return! loop (cur ()) initialStates
+
                     | Some (Stop channel) ->
                         channel.Reply ()
                         return () }
-            loop initialStates)
+
+            loop (cur ()) initialStates)
 
         member this.Update line = mailbox.Post (Line line)
         member this.Reset () = mailbox.Post Reset

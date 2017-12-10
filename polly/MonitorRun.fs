@@ -11,8 +11,9 @@ open Out
 module MonitorRun =
 
     let private sendFireEmail senderInfo toAddresses (error : Error)  =
+        let (TimeMs upTimeMs) = error.UpTime
         try
-            Email.sendFire senderInfo toAddresses error.Reason error.Log
+            Email.sendFire senderInfo toAddresses error.Reason upTimeMs error.Log
         with _ -> ()
 
     let private sendExitEmail senderInfo toAddresses upTimeMs =
@@ -67,7 +68,7 @@ module MonitorRun =
             let curTimeMs = currentUnixTimeMs ()
             let upTimeMs = curTimeMs - timeMs
             if upTimeMs < (int64 config.ExitToleranceMinutes) * 60000L then
-                fireWith { Reason = "Exit too quickly"; Log = "<No log>" }
+                fireWith { Reason = "Exit too quickly"; UpTime = TimeMs upTimeMs; Log = "<No log>" }
             else
                 printSpecial "THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
                 sendExitEmail senderInfo config.Subscribes upTimeMs

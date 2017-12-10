@@ -35,13 +35,18 @@ module Email =
     let private makeComputerText () =
         sprintf "[Computer] %s" Environment.MachineName
 
-    let sendFire senderInfo toAddresses reason log =
+    let private makeUpTimeText upTimeMs =
+        let ts = TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan
+        sprintf "[Up time] %s" (ts.ToString @"dd\.hh\:mm\:ss")
+
+    let sendFire senderInfo toAddresses reason upTimeMs log =
         let subject = "Fire notification"
 
         let computer = makeComputerText ()
         let reason = sprintf "[Reason] %s" reason
+        let upTime = makeUpTimeText upTimeMs
         let log = sprintf "[Log] %s" log
-        let body = sprintf "%s\n%s\n%s" computer reason log
+        let body = sprintf "%s\n%s\n%s\n%s" computer reason upTime log
 
         send senderInfo toAddresses subject body
 
@@ -58,7 +63,7 @@ module Email =
         let subject = "Exit notification"
 
         let computer = makeComputerText ()
-        let upTime = sprintf "[Up time] %A" (TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan)
+        let upTime = makeUpTimeText upTimeMs
         let body = sprintf "%s\n%s" computer upTime
 
         send senderInfo toAddresses subject body
