@@ -47,8 +47,7 @@ module MonitorCheck =
         let cur () = currentUnixTimeMs () |> TimeMs
 
         let update beginTime line states =
-            let curTime = cur ()
-            let states' = Array.map2 (updateState beginTime curTime line) profiles states
+            let states' = Array.map2 (updateState beginTime (cur ()) line) profiles states
             states'
             |> Array.tryPick (function | Over error -> Some error | _ -> None)
             |> Option.iter fire
