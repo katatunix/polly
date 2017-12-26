@@ -50,7 +50,7 @@ module MonitorCheckTest =
         Assert.IsTrue fired
 
     [<Test>]
-    let ``when a line is error but has good line before tolerance duration, then no fire`` () =
+    let ``when a line is error but there is a good line before tolerance duration, then no fire`` () =
         let profiles = [|
             { Bad = [| "fan=0%" |]; Tolerance = Some { Duration = TimeMs 1000L; Good = [| "fan=20%" |] } }
         |]

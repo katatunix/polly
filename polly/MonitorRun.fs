@@ -47,11 +47,13 @@ module MonitorRun =
 
     let forever config =
         let agentForever = MailboxProcessor.Start agentForeverBody
+
         let senderInfo = Config.extractSenderInfo config
         let fireWith error =
             printSpecial (sprintf "FIRE!!! REASON: %s" error.Reason)
             sendFireEmail senderInfo config.Subscribes error
             fire ()
+        
         let agentCheck = MonitorCheck.Agent (extractProfiles config, fireWith)
 
         let rec loop timeMs =
