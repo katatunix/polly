@@ -15,7 +15,7 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
 ```
 {
     "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
-    "MinerArgs" : "-esm 1 -gser 0",
+    "MinerArgs" : "",
     "Polly" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
@@ -40,7 +40,7 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
                 "got incorrect share",
                 "fan=0%",
                 "gpu error",
-                "you need to restart miner",
+                "need to restart miner",
                 "cuda error",
                 "opencl error",
                 "gpuminer cu_k1 failed",
