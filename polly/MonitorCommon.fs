@@ -2,7 +2,13 @@
 
 module MonitorCommon =
 
-    type TimeMs = TimeMs of int64
+    type TimeMs = TimeMs of int64 with
+        static member (-) (TimeMs a, TimeMs b) =
+            TimeMs (a - b)
+        static member op_LessThan (TimeMs a, TimeMs b) =
+            a < b
+        static member op_GreaterThan (TimeMs a, TimeMs b) =
+            a > b
 
     type Error = {
         Reason : string

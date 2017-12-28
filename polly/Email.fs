@@ -39,13 +39,13 @@ module Email =
         let ts = TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan
         sprintf "[Up time] %s" (ts.ToString @"dd\.hh\:mm\:ss")
 
-    let sendFire senderInfo toAddresses reason upTimeMs log =
+    let sendFire senderInfo toAddresses reason upTimeMs (log : string) =
         let subject = "Fire notification"
 
         let computer = makeComputerText ()
         let reason = sprintf "[Reason] %s" reason
         let upTime = makeUpTimeText upTimeMs
-        let log = sprintf "[Log] %s" log
+        let log = sprintf "[Log] %s" (if log.Length > 0 then log else "<No log>")
         let body = sprintf "%s\n%s\n%s\n%s" computer reason upTime log
 
         send senderInfo toAddresses subject body

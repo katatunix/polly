@@ -70,7 +70,7 @@ module MonitorRun =
             let curTimeMs = currentUnixTimeMs ()
             let upTimeMs = curTimeMs - timeMs
             if upTimeMs < (int64 config.ExitToleranceMinutes) * 60000L then
-                fireWith { Reason = "Exit too quickly"; UpTime = TimeMs upTimeMs; Log = "<No log>" }
+                fireWith { Reason = "Exit too quickly"; UpTime = TimeMs upTimeMs; Log = "" }
             else
                 printSpecial "THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
                 sendExitEmail senderInfo config.Subscribes upTimeMs

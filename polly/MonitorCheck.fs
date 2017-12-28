@@ -11,29 +11,28 @@ module MonitorCheck =
         | Active of (Error * TimeMs)
         | Over of Error
 
-    let private updateState (TimeMs beginTime) (TimeMs curTime) (line : string option) profile state =
+    let private updateState beginTime curTime (line : string) profile state =
         match state with
         | Idle ->
-            match line with
+            match profile.Bad |> Array.tryFind line.Contains with
             | None -> state
-            | Some line ->
-                match profile.Bad |> Array.tryFind line.Contains with
-                | None -> state
-                | Some reason ->
-                    let error = { Reason = reason; UpTime = curTime - beginTime |> TimeMs; Log = line }
-                    match profile.Tolerance with
-                    | None ->
-                        Over error
-                    | _ ->
-                        Active (error, (TimeMs curTime))
-        | Active (error, (TimeMs oldTime)) ->
-            let { Duration = TimeMs duration; Good = good } = profile.Tolerance.Value
+            | Some reason ->
+                let error = { Reason = reason; UpTime = curTime - beginTime; Log = line }
+                match profile.Tolerance with
+                | None ->
+                    Over error
+                | _ ->
+                    Active (error, curTime)
+
+        | Active (error, oldTime) ->
+            let { Duration = duration; Good = good } = profile.Tolerance.Value
             if curTime - oldTime > duration then
-                Over { error with UpTime = curTime - beginTime |> TimeMs }
-            elif line.IsSome && good |> Array.exists line.Value.Contains then
+                Over { error with UpTime = curTime - beginTime }
+            elif good |> Array.exists line.Contains then
                 Idle
             else
                 state
+
         | _ ->
             state
 
@@ -46,26 +45,29 @@ module MonitorCheck =
 
         let cur () = currentUnixTimeMs () |> TimeMs
 
-        let update beginTime line states =
+        let updateWithNewLine beginTime line states =
             let states' = Array.map2 (updateState beginTime (cur ()) line) profiles states
             states'
             |> Array.tryPick (function | Over error -> Some error | _ -> None)
             |> Option.iter fire
             states'
 
+        let fireBecauseStuck beginTime =
+            fire { Reason = "Stuck"; UpTime = cur () - beginTime; Log = "" }
+
         let initialStates = Array.replicate (profiles |> Array.length) Idle
 
         let mailbox = MailboxProcessor.Start (fun mailbox ->
             let rec loop beginTime states =
                 async {
-                    let! msg = mailbox.TryReceive 60000
+                    let! msg = mailbox.TryReceive (5 * 60 * 1000)
                     match msg with
                     | None ->
-                        let states' = states |> update beginTime None
-                        return! loop beginTime states'
+                        fireBecauseStuck beginTime
+                        return! loop beginTime states
 
                     | Some (Line line) ->
-                        let states' = states |> update beginTime (Some line)
+                        let states' = states |> updateWithNewLine beginTime line
                         return! loop beginTime states'
 
                     | Some Reset ->

@@ -5,6 +5,7 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
 ## Features
 * Continuously check console output of the miner to detect errors, and based on that the tool will fire an action which is specified in a file called `fire.bat`.
 * Start miner again when it exits/crashes, fire the action if the exiting happens too quickly.
+* If miner has not printed out anything to console for 5 minutes, then fire the action.
 * Periodically check new public IP address of the rig.
 * All important events (fire, exit, new IP) will be sent to a list of subscribed email addresses.
 
@@ -15,7 +16,7 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
 ```
 {
     "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
-    "MinerArgs" : "-esm 1 -gser 0",
+    "MinerArgs" : "",
     "Polly" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
@@ -40,7 +41,7 @@ Run this tool on your mining rig, when any of predefined errors indicators happe
                 "got incorrect share",
                 "fan=0%",
                 "gpu error",
-                "you need to restart miner",
+                "need to restart miner",
                 "cuda error",
                 "opencl error",
                 "gpuminer cu_k1 failed",
