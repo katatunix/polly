@@ -29,8 +29,29 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
     ],
     "Profiles" : [
         {
-            "Bad" : [ "speed = 8" ],
-            "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] },
+            "Bad" : [
+                "ETH - Total Speed: 16",
+                "ETH - Total Speed: 17"
+            ],
+            "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 18" ] },
+            "Action" : "restart.bat"
+        },
+        {
+            "Bad" : [
+                "cannot get current temperature",
+                "unspecified launch failure",
+                "an illegal instruction was encountered",
+                "fan=0%",
+                "gpu error",
+                "need to restart miner",
+                "cuda error",
+                "opencl error",
+                "gpuminer cu_k1 failed",
+                "gpuminer cu_kx failed",
+                "gpuminer cu_k01 failed",
+                "gpuminer kx failed",
+                "cannot get fan speed"
+            ],
             "Action" : "restart.bat"
         },
         {
