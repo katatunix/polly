@@ -1,15 +1,14 @@
 ﻿namespace polly
 
 open System
-open NghiaBui.Common.Time
 open MonitorCommon
 
 module MonitorCheck =
 
     type private State =
         | Idle
-        | Active of (Error * TimeMs)
-        | Over of Error
+        | Active of (FireInfo * TimeMs)
+        | Over of FireInfo
 
     let private updateState beginTime curTime (line : string) profile state =
         match state with
@@ -17,7 +16,7 @@ module MonitorCheck =
             match profile.Bad |> Array.tryFind line.Contains with
             | None -> state
             | Some reason ->
-                let error = { Reason = reason; UpTime = curTime - beginTime; Log = line }
+                let error = { Reason = reason; UpTime = curTime - beginTime; Action = profile.Action; Log = Some line }
                 match profile.Tolerance with
                 | None ->
                     Over error
@@ -41,26 +40,27 @@ module MonitorCheck =
         | Reset
         | Stop of AsyncReplyChannel<unit>
 
-    type Agent (profiles, fire) =
-
-        let cur () = currentUnixTimeMs () |> TimeMs
+    type Agent (stuckProfile : SpecialProfile, profiles, fire) =
 
         let updateWithNewLine beginTime line states =
-            let states' = Array.map2 (updateState beginTime (cur ()) line) profiles states
+            let states' = Array.map2 (updateState beginTime (curTime ()) line) profiles states
             states'
             |> Array.tryPick (function | Over error -> Some error | _ -> None)
             |> Option.iter fire
             states'
 
         let fireBecauseStuck beginTime =
-            fire { Reason = "Stuck"; UpTime = cur () - beginTime; Log = "" }
+            fire {  Reason = "Stuck"
+                    UpTime = curTime () - beginTime
+                    Action = Some stuckProfile.Action
+                    Log = None }
 
         let initialStates = Array.replicate (profiles |> Array.length) Idle
 
         let mailbox = MailboxProcessor.Start (fun mailbox ->
             let rec loop beginTime states =
                 async {
-                    let! msg = mailbox.TryReceive (5 * 60 * 1000)
+                    let! msg = mailbox.TryReceive (int stuckProfile.Tolerance.Value)
                     match msg with
                     | None ->
                         fireBecauseStuck beginTime
@@ -71,13 +71,13 @@ module MonitorCheck =
                         return! loop beginTime states'
 
                     | Some Reset ->
-                        return! loop (cur ()) initialStates
+                        return! loop (curTime ()) initialStates
 
                     | Some (Stop channel) ->
                         channel.Reply ()
                         return () }
 
-            loop (cur ()) initialStates)
+            loop (curTime ()) initialStates)
 
         member this.Update line = mailbox.Post (Line line)
         member this.Reset () = mailbox.Post Reset

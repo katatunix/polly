@@ -6,6 +6,8 @@ open System.Net.Mail
 
 module Email =
 
+    let private subject = "Notification - " + Environment.MachineName
+
     type SenderInfo = {
         SmtpHost : string
         SmtpPort : int
@@ -32,38 +34,19 @@ module Email =
 
         smtp.Send message
 
-    let private makeComputerText () =
-        sprintf "[Computer] %s" Environment.MachineName
-
     let private makeUpTimeText upTimeMs =
         let ts = TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan
         sprintf "[Up time] %s" (ts.ToString @"dd\.hh\:mm\:ss")
 
-    let sendFire senderInfo toAddresses reason upTimeMs (log : string) =
-        let subject = "Fire notification"
-
-        let computer = makeComputerText ()
+    let sendFire senderInfo toAddresses reason upTimeMs action log =
+        let title = "FIRE!"
         let reason = sprintf "[Reason] %s" reason
         let upTime = makeUpTimeText upTimeMs
-        let log = sprintf "[Log] %s" (if log.Length > 0 then log else "<No log>")
-        let body = sprintf "%s\n%s\n%s\n%s" computer reason upTime log
-
+        let action = sprintf "[Action] %s" (action |> Option.defaultValue "<None>")
+        let log = sprintf "[Log] %s" (log |> Option.defaultValue "<None>")
+        let body = sprintf "%s\n%s\n%s\n%s\n%s" title reason upTime action log
         send senderInfo toAddresses subject body
 
     let sendPublicIp senderInfo toAddresses ip =
-        let subject = "New IP address"
-
-        let computer = makeComputerText ()
-        let ip = sprintf "[IP address] %s" ip
-        let body = sprintf "%s\n%s" computer ip
-
-        send senderInfo toAddresses subject body
-
-    let sendExit senderInfo toAddresses upTimeMs =
-        let subject = "Exit notification"
-
-        let computer = makeComputerText ()
-        let upTime = makeUpTimeText upTimeMs
-        let body = sprintf "%s\n%s" computer upTime
-
+        let body = "New public IP address: " + ip
         send senderInfo toAddresses subject body

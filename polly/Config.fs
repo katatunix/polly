@@ -24,10 +24,24 @@ module Config =
                 "banana@yahoo.com"
             ],
             "Profiles" : [
-                { "Bad" : ["speed = 8"], "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] } },
-                { "Bad" : ["fan=0%"] }
+                {
+                    "Bad" : [ "speed = 8" ],
+                    "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] },
+                    "Action" : "restart.bat"
+                },
+                {
+                    "Bad" : [ "got incorrect share" ],
+                    "Action" : ""
+                }
             ],
-            "ExitToleranceMinutes" : 1,
+            "StuckProfile" : {
+                "ToleranceMinutes" : 5,
+                "Action" : "restart.bat"
+            },
+            "QuickExitProfile" : {
+                "ToleranceMinutes" : 1,
+                "Action" : "restart.bat"
+            },
             "PublicIpCheckMinutes" : 30
         }""">
 

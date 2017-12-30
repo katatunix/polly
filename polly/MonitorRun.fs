@@ -4,26 +4,21 @@ open System
 open System.IO
 open System.Threading
 open NghiaBui.Common.Text
-open NghiaBui.Common.Time
 open MonitorCommon
 open Out
 
 module MonitorRun =
 
-    let private sendFireEmail senderInfo toAddresses (error : Error)  =
+    let private sendFireEmail senderInfo toAddresses (error : FireInfo)  =
         let (TimeMs upTimeMs) = error.UpTime
         try
-            Email.sendFire senderInfo toAddresses error.Reason upTimeMs error.Log
+            Email.sendFire senderInfo toAddresses error.Reason upTimeMs error.Action error.Log
         with _ -> ()
 
-    let private sendExitEmail senderInfo toAddresses upTimeMs =
-        try
-            Email.sendExit senderInfo toAddresses upTimeMs
-        with _ -> ()
-
-    let private fire () =
-        let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "fire.bat")
-        System.Diagnostics.Process.Start path |> ignore
+    let private execFile =
+        Option.iter (fun file ->
+            let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, file)
+            System.Diagnostics.Process.Start path |> ignore)
 
     type private SimpleChannel = AsyncReplyChannel<unit>
 
@@ -49,14 +44,18 @@ module MonitorRun =
         let agentForever = MailboxProcessor.Start agentForeverBody
 
         let senderInfo = Config.extractSenderInfo config
-        let fireWith error =
-            printSpecial (sprintf "FIRE!!! REASON: %s" error.Reason)
-            sendFireEmail senderInfo config.Subscribes error
-            fire ()
-        
-        let agentCheck = MonitorCheck.Agent (extractProfiles config, fireWith)
 
-        let rec loop timeMs =
+        let fire error =
+            printSpecial (sprintf "FIRE! REASON: %s! ACTION: %s"
+                                    error.Reason (error.Action |> Option.defaultValue "<None>"))
+            sendFireEmail senderInfo config.Subscribes error
+            execFile error.Action
+        
+        let agentCheck = MonitorCheck.Agent (extractStuckProfile config, extractProfiles config, fire)
+
+        let quickExitProfile = extractQuickExitProfile config
+
+        let rec loop beginTime =
             let start, wait, stop =
                 Process.create
                     (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "winpty.exe"))
@@ -67,17 +66,22 @@ module MonitorRun =
             agentForever.PostAndReply (fun channel -> Start (start, stop, channel))
             wait ()
 
-            let curTimeMs = currentUnixTimeMs ()
-            let upTimeMs = curTimeMs - timeMs
-            if upTimeMs < (int64 config.ExitToleranceMinutes) * 60000L then
-                fireWith { Reason = "Exit too quickly"; UpTime = TimeMs upTimeMs; Log = "" }
+            let now = curTime ()
+            let duration = now - beginTime
+            if duration < quickExitProfile.Tolerance then
+                fire {  Reason = "Exit too quickly"
+                        UpTime = duration
+                        Action = Some quickExitProfile.Action
+                        Log = None }
             else
-                printSpecial "THE MINER HAS BEEN EXITED, NOW START IT AGAIN"
-                sendExitEmail senderInfo config.Subscribes upTimeMs
+                fire {  Reason = "Exit"
+                        UpTime = duration
+                        Action = None
+                        Log = None }
                 agentCheck.Reset ()
-                loop curTimeMs
+                loop now
 
-        let thread = Thread (ThreadStart (fun _ -> currentUnixTimeMs () |> loop))
+        let thread = Thread (ThreadStart (fun _ -> curTime () |> loop))
         thread.Start ()
 
         let wait = fun () -> thread.Join ()

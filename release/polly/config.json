@@ -1,6 +1,6 @@
 {
     "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
-    "MinerArgs" : "",
+    "MinerArgs" : "-esm 1 -gser 0",
     "Polly" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
@@ -14,28 +14,22 @@
     ],
     "Profiles" : [
         {
-            "Bad" : [ "ETH - Total Speed: 11", "ETH - Total Speed: 12", "ETH - Total Speed: 13" ],
-            "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 14" ] }
+            "Bad" : [ "speed = 8" ],
+            "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] },
+            "Action" : "restart.bat"
         },
         {
-            "Bad" : [
-                "cannot get current temperature",
-                "unspecified launch failure",
-                "an illegal instruction was encountered",
-                "got incorrect share",
-                "fan=0%",
-                "gpu error",
-                "need to restart miner",
-                "cuda error",
-                "opencl error",
-                "gpuminer cu_k1 failed",
-                "gpuminer cu_kx failed",
-                "gpuminer cu_k01 failed",
-                "gpuminer kx failed",
-                "cannot get fan speed"
-            ]
+            "Bad" : [ "got incorrect share" ],
+            "Action" : ""
         }
     ],
-    "ExitToleranceMinutes" : 1,
+    "StuckProfile" : {
+        "ToleranceMinutes" : 5,
+        "Action" : "restart.bat"
+    },
+    "QuickExitProfile" : {
+        "ToleranceMinutes" : 1,
+        "Action" : "restart.bat"
+    },
     "PublicIpCheckMinutes" : 30
 }
