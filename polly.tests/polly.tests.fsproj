@@ -7,6 +7,7 @@
     <RootNamespace>polly.tests</RootNamespace>
     <AssemblyName>polly.tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <ReleaseVersion>2.9</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

@@ -50,7 +50,7 @@ module Monitor =
         let detector = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire)
         let monitor = MailboxProcessor.Start monitorBody
 
-        let rec loop beginTime =
+        let rec loop () =
             let start, wait, stop =
                 Process.create
                     (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "winpty.exe"))
@@ -59,24 +59,19 @@ module Monitor =
                         Out.println line
                         line |> cleanAnsiEscapeCode |> detector.Update)
             monitor.PostAndReply (fun channel -> Start (start, stop, channel))
+            let beginTime = TimeMs.Now
             wait ()
+            let duration = TimeMs.Now - beginTime
+            let isQuick = duration < config.QuickExitProfile.Tolerance
+            let info = {    Reason = if isQuick then "Exit too quickly" else "Exit"
+                            UpTime = duration
+                            Action = if isQuick then Some config.QuickExitProfile.Action else None
+                            Log = None }
+            fire info
+            detector.Reset ()
+            loop ()
 
-            let now = TimeMs.Now
-            let duration = now - beginTime
-            if duration < config.QuickExitProfile.Tolerance then
-                fire {  Reason = "Exit too quickly"
-                        UpTime = duration
-                        Action = Some config.QuickExitProfile.Action
-                        Log = None }
-            else
-                fire {  Reason = "Exit"
-                        UpTime = duration
-                        Action = None
-                        Log = None }
-                detector.Reset ()
-                loop now
-
-        let thread = Thread (ThreadStart (fun _ -> loop TimeMs.Now))
+        let thread = Thread (ThreadStart loop)
         thread.Start ()
 
         let wait = fun () -> thread.Join ()

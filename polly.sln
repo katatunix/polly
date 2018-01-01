@@ -20,4 +20,7 @@ Global
 		{A3597170-00BD-4371-A5FB-36CDFA555030}.Release|x86.ActiveCfg = Release|Any CPU
 		{A3597170-00BD-4371-A5FB-36CDFA555030}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 2.9
+	EndGlobalSection
 EndGlobal
