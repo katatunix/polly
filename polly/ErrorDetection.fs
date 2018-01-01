@@ -1,9 +1,17 @@
 ﻿namespace polly
 
 open System
-open MonitorCommon
+open NghiaBui.Common.Misc
 
-module MonitorCheck =
+open Config
+
+module ErrorDetection =
+
+    type FireInfo = {
+        Reason : string
+        UpTime : TimeMs
+        Action : string option
+        Log : string option }
 
     type private State =
         | Idle
@@ -14,26 +22,28 @@ module MonitorCheck =
         match state with
         | Idle ->
             match profile.Bad |> Array.tryFind line.Contains with
-            | None -> state
+            | None ->
+                state
             | Some reason ->
-                let error = { Reason = reason; UpTime = curTime - beginTime; Action = profile.Action; Log = Some line }
+                let fireInfo = {    Reason = reason; UpTime = curTime - beginTime;
+                                    Action = profile.Action; Log = Some line }
                 match profile.Tolerance with
                 | None ->
-                    Over error
+                    Over fireInfo
                 | _ ->
-                    Active (error, curTime)
+                    Active (fireInfo, curTime)
 
-        | Active (error, oldTime) ->
+        | Active (fireInfo, oldTime) ->
             let { Duration = duration; Good = good } = profile.Tolerance.Value
             if curTime - oldTime > duration then
-                Over { error with UpTime = curTime - beginTime }
+                Over { fireInfo with UpTime = curTime - beginTime }
             elif good |> Array.exists line.Contains then
                 Idle
             else
                 state
 
-        | _ ->
-            state
+        | Over _ ->
+            failShouldNotGoHere ()
 
     type private Message =
         | Line of string
@@ -43,15 +53,14 @@ module MonitorCheck =
     type Agent (stuckProfile : SpecialProfile, profiles, fire) =
 
         let updateWithNewLine beginTime line states =
-            let states' = Array.map2 (updateState beginTime (curTime ()) line) profiles states
-            states'
-            |> Array.tryPick (function | Over error -> Some error | _ -> None)
-            |> Option.iter fire
-            states'
+            let states' = Array.map2 (updateState beginTime TimeMs.Now line) profiles states
+            states' |> Array.tryPick (function | Over fireInfo -> Some fireInfo | _ -> None)
+                    |> Option.iter fire
+            states' |> Array.map (function | Over _ -> Idle | _ as state -> state)
 
         let fireBecauseStuck beginTime =
             fire {  Reason = "Stuck"
-                    UpTime = curTime () - beginTime
+                    UpTime = TimeMs.Now - beginTime
                     Action = Some stuckProfile.Action
                     Log = None }
 
@@ -71,13 +80,12 @@ module MonitorCheck =
                         return! loop beginTime states'
 
                     | Some Reset ->
-                        return! loop (curTime ()) initialStates
+                        return! loop TimeMs.Now initialStates
 
                     | Some (Stop channel) ->
-                        channel.Reply ()
-                        return () }
+                        channel.Reply () }
 
-            loop (curTime ()) initialStates)
+            loop TimeMs.Now initialStates)
 
         member this.Update line = mailbox.Post (Line line)
         member this.Reset () = mailbox.Post Reset

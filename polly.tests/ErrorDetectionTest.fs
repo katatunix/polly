@@ -1,11 +1,13 @@
 ﻿namespace polly.tests
+
 open System
 open NUnit.Framework
 
-open polly.MonitorCommon
-open polly.MonitorCheck
+open polly.Common
+open polly.Config
+open polly.ErrorDetection
 
-module MonitorCheckTest =
+module ErrorDetectionTest =
 
     let stuckProfile = { Tolerance = TimeMs (5L * 60000L); Action = "restart.bat" }
 

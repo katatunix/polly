@@ -3,16 +3,17 @@
 open System
 open System.IO
 open System.Threading
+
 open NghiaBui.Common.Text
-open MonitorCommon
-open Out
 
-module MonitorRun =
+open Config
+open ErrorDetection
 
-    let private sendFireEmail senderInfo toAddresses (error : FireInfo)  =
-        let (TimeMs upTimeMs) = error.UpTime
+module Monitor =
+
+    let private sendFireEmail sender toAddresses (fi : FireInfo)  =
         try
-            Email.sendFire senderInfo toAddresses error.Reason upTimeMs error.Action error.Log
+            Email.sendFire sender toAddresses fi.Reason fi.UpTime.Value fi.Action fi.Log
         with _ -> ()
 
     let private execFile =
@@ -26,7 +27,7 @@ module MonitorRun =
         | Start of (unit -> unit) * (unit -> unit) * SimpleChannel
         | Stop of SimpleChannel
 
-    let private agentForeverBody (mailbox : MailboxProcessor<Message>) = 
+    let private monitorBody (mailbox : MailboxProcessor<Message>) = 
         let rec loop stopOp =
             async {
                 let! message = mailbox.Receive ()
@@ -40,20 +41,14 @@ module MonitorRun =
                     channel.Reply () }
         loop None
 
-    let forever config =
-        let agentForever = MailboxProcessor.Start agentForeverBody
-
-        let senderInfo = Config.extractSenderInfo config
-
-        let fire error =
-            printSpecial (sprintf "FIRE! REASON: %s! ACTION: %s"
-                                    error.Reason (error.Action |> Option.defaultValue "<None>"))
-            sendFireEmail senderInfo config.Subscribes error
-            execFile error.Action
-        
-        let agentCheck = MonitorCheck.Agent (extractStuckProfile config, extractProfiles config, fire)
-
-        let quickExitProfile = extractQuickExitProfile config
+    let run (config : Config) =
+        let fire info =
+            Out.printSpecial (sprintf "FIRE! REASON: %s! ACTION: %s"
+                                info.Reason (info.Action |> Option.defaultValue "<None>"))
+            sendFireEmail config.Sender config.Subscribes info
+            execFile info.Action
+        let detector = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire)
+        let monitor = MailboxProcessor.Start monitorBody
 
         let rec loop beginTime =
             let start, wait, stop =
@@ -61,29 +56,29 @@ module MonitorRun =
                     (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "winpty.exe"))
                     (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
                     (fun line ->
-                        println line
-                        line |> cleanAnsiEscapeCode |> agentCheck.Update)
-            agentForever.PostAndReply (fun channel -> Start (start, stop, channel))
+                        Out.println line
+                        line |> cleanAnsiEscapeCode |> detector.Update)
+            monitor.PostAndReply (fun channel -> Start (start, stop, channel))
             wait ()
 
-            let now = curTime ()
+            let now = TimeMs.Now
             let duration = now - beginTime
-            if duration < quickExitProfile.Tolerance then
+            if duration < config.QuickExitProfile.Tolerance then
                 fire {  Reason = "Exit too quickly"
                         UpTime = duration
-                        Action = Some quickExitProfile.Action
+                        Action = Some config.QuickExitProfile.Action
                         Log = None }
             else
                 fire {  Reason = "Exit"
                         UpTime = duration
                         Action = None
                         Log = None }
-                agentCheck.Reset ()
+                detector.Reset ()
                 loop now
 
-        let thread = Thread (ThreadStart (fun _ -> curTime () |> loop))
+        let thread = Thread (ThreadStart (fun _ -> loop TimeMs.Now))
         thread.Start ()
 
         let wait = fun () -> thread.Join ()
-        let stop = fun () -> agentForever.PostAndReply Stop; agentCheck.Stop ()
+        let stop = fun () -> monitor.PostAndReply Stop; detector.Stop ()
         wait, stop

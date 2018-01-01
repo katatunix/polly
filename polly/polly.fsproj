@@ -57,14 +57,15 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Common.fs" />
+    <Compile Include="Config.fs" />
+    <Compile Include="ErrorDetection.fs" />
+    <Compile Include="Email.fs" />
     <Compile Include="Out.fs" />
     <Compile Include="Process.fs" />
-    <Compile Include="Email.fs" />
-    <Compile Include="Config.fs" />
+    <Compile Include="Monitor.fs" />
     <Compile Include="PublicIp.fs" />
-    <Compile Include="MonitorCommon.fs" />
-    <Compile Include="MonitorCheck.fs" />
-    <Compile Include="MonitorRun.fs" />
+    <Compile Include="Monitor.Common.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

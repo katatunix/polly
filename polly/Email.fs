@@ -4,20 +4,15 @@ open System
 open System.Net
 open System.Net.Mail
 
+open Config
+
 module Email =
 
     let private subject = "Notification - " + Environment.MachineName
 
-    type SenderInfo = {
-        SmtpHost : string
-        SmtpPort : int
-        Address : string
-        Password : string
-        DisplayedName : string }
-
-    let private send (senderInfo : SenderInfo) (toAddresses : string []) subject body =
+    let private send (sender : Sender) (toAddresses : string []) subject body =
         use message = new MailMessage ()
-        message.From <- MailAddress (senderInfo.Address, senderInfo.DisplayedName)
+        message.From <- MailAddress (sender.Address, sender.DisplayedName)
         for toAddress in toAddresses do
             message.To.Add (toAddress)
         message.Subject <- subject
@@ -25,12 +20,12 @@ module Email =
 
         use smtp =
             new SmtpClient (
-                Host = senderInfo.SmtpHost,
-                Port = senderInfo.SmtpPort,
+                Host = sender.SmtpHost,
+                Port = sender.SmtpPort,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = NetworkCredential (senderInfo.Address, senderInfo.Password) )
+                Credentials = NetworkCredential (sender.Address, sender.Password) )
 
         smtp.Send message
 
