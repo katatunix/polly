@@ -71,7 +71,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 }
 ```
 * Most of options are self-explanatory. Regarding the `Sender` option, it is recommended to use Gmail. You should change the `pollymonitor2@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/lesssecureapps
-* Execute the tool: `polly.bat`.
+* Quit the miner if it is running, then execute the tool: `polly.bat`.
 * Make sure that the tool is executed every time your rig starts (e.g., create a shortcut of `polly.bat` and put it into the `Startup` folder of Windows).
 
 ## Notes
