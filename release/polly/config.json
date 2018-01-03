@@ -37,7 +37,7 @@
                 "gpuminer kx failed",
                 "cannot get fan speed"
             ],
-            "Action" : "restart.bat"
+            "Action" : "killminer.bat"
         },
         {
             "Bad" : [ "got incorrect share" ],

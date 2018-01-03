@@ -52,7 +52,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
                 "gpuminer kx failed",
                 "cannot get fan speed"
             ],
-            "Action" : "restart.bat"
+            "Action" : "killminer.bat"
         },
         {
             "Bad" : [ "got incorrect share" ],
@@ -77,6 +77,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 ## Notes
 * You should use `/` or `\\` (not `\`) in the `MinerPath` option.
 * The file or file path declared in every `Action` option is relative to the `/release/polly` folder.
-* `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty.
+* `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
 * It is recommended to set `Screen Buffer Width` (in `Properties/Layout` of the console) to be greater than the longest line in the console output of your miner. The typical value is 200. This should be done on the console window executed from the shortcut in the `Startup` folder, so that the setting will be applied permanently.
+* The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided in the `release\polly` folder. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.

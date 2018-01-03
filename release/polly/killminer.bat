@@ -1,0 +1,1 @@
+taskkill /f /t /im EthDcrMiner64.exe
