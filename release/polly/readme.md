@@ -82,7 +82,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * It is recommended to set `Screen Buffer Width` (in `Properties/Layout` of the console) to be greater than the longest line in the console output of your miner. The typical value is 200. This should be done on the console window executed from the shortcut in the `Startup` folder, so that the setting will be applied permanently.
 * The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided in the `release\polly` folder. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
 
-## Donate
+## Donations
 If you love this tool, you can buy me a cup of coffee via:
-* BTC: 18gmEFLjEVhXz3P8cmubsGSQRZfssWyg7o
+* BTC: 1MNipFhuKu48xhjw1ihEkzbohMX3HRwiML
 * ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
