@@ -75,7 +75,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * Make sure that the tool is executed every time your rig starts (e.g., create a shortcut of `polly.bat` and put it into the `Startup` folder of Windows).
 
 ## Notes
-* You should use `/` or `\\` (not `\`) in the `MinerPath` option.
+* You should use `/` or `\\` (not `\`) in all the options containing a path, such as `MinerPath` and `Action` options.
 * The file or file path declared in every `Action` option is relative to the `/release/polly` folder.
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
