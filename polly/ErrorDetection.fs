@@ -14,14 +14,10 @@ module ErrorDetection =
         Log : string option }
 
     let private matched (line : string) (indicator : string) =
-        let KEY = "___"
-        let sepIdx = indicator.IndexOf KEY
-        if sepIdx = -1 then
-            line.Contains indicator
-        else
-            let left = indicator.Substring (0, sepIdx)
-            let right = indicator.Substring (sepIdx + KEY.Length)
-            (line.Contains left) && not (line.Contains right)
+        let keys = indicator.Split ([| "___" |], StringSplitOptions.RemoveEmptyEntries)
+        keys.Length > 0 &&
+        line.Contains keys.[0] &&
+        keys |> Array.tail |> Array.forall (line.Contains >> not)
 
     type private State =
         | Idle
