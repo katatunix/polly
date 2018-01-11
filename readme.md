@@ -10,7 +10,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * All important events -- errors happen / exit normally / exit too quickly / new public IP -- will be sent to a list of subscribed email addresses.
 
 ## Usage
-* Copy folder `/release/polly` to your rig.
+* Copy this tool to your rig.
 * Open file `config.json` and modify it following the template below:
 ```
 {
@@ -78,7 +78,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 
 ## Notes
 * You should use `/` or `\\` (not `\`) in all the options containing a path, such as `MinerPath` and `Action` options.
-* The file or file path declared in every `Action` option is relative to the `/release/polly` folder.
+* The file or file path declared in every `Action` option is relative to the folder containing `polly.exe`.
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
 * It is recommended to set `Screen Buffer Width` (in `Properties/Layout` of the console) to be greater than the longest line in the console output of your miner. The typical value is 200. This should be done on the console window executed from the shortcut in the `Startup` folder, so that the setting will be applied permanently.
