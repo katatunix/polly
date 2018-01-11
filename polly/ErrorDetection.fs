@@ -13,6 +13,16 @@ module ErrorDetection =
         Action : string option
         Log : string option }
 
+    let private matched (line : string) (indicator : string) =
+        let KEY = "___"
+        let sepIdx = indicator.IndexOf KEY
+        if sepIdx = -1 then
+            line.Contains indicator
+        else
+            let left = indicator.Substring (0, sepIdx)
+            let right = indicator.Substring (sepIdx + KEY.Length)
+            (line.Contains left) && not (line.Contains right)
+
     type private State =
         | Idle
         | Active of (FireInfo * TimeMs)
@@ -21,7 +31,7 @@ module ErrorDetection =
     let private updateState beginTime curTime (line : string) profile state =
         match state with
         | Idle ->
-            match profile.Bad |> Array.tryFind line.Contains with
+            match profile.Bad |> Array.tryFind (matched line) with
             | None ->
                 state
             | Some reason ->
@@ -37,7 +47,7 @@ module ErrorDetection =
             let { Duration = duration; Good = good } = profile.Tolerance.Value
             if curTime - oldTime > duration then
                 Over { fireInfo with UpTime = curTime - beginTime }
-            elif good |> Array.exists line.Contains then
+            elif good |> Array.exists (matched line) then
                 Idle
             else
                 state

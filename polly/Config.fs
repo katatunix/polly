@@ -55,8 +55,13 @@ module Config =
             ],
             "Profiles" : [
                 {
-                    "Bad" : [ "speed = 8" ],
-                    "Tolerance" : { "DurationMinutes" : 10, "Good" : ["speed = 10"] },
+                    "Bad" : [ "ETH - Total Speed:___ETH - Total Speed: 18" ],
+                    "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 18" ] },
+                    "Action" : "restart.bat"
+                },
+                {
+                    "Bad" : [ "fan=0%" ],
+                    "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "fan=___fan=0%" ] },
                     "Action" : "restart.bat"
                 },
                 {

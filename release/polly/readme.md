@@ -29,11 +29,13 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
     ],
     "Profiles" : [
         {
-            "Bad" : [
-                "ETH - Total Speed: 16",
-                "ETH - Total Speed: 17"
-            ],
+            "Bad" : [ "ETH - Total Speed:___ETH - Total Speed: 18" ],
             "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 18" ] },
+            "Action" : "restart.bat"
+        },
+        {
+            "Bad" : [ "fan=0%" ],
+            "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "fan=___fan=0%" ] },
             "Action" : "restart.bat"
         },
         {
@@ -41,7 +43,6 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
                 "cannot get current temperature",
                 "unspecified launch failure",
                 "an illegal instruction was encountered",
-                "fan=0%",
                 "gpu error",
                 "need to restart miner",
                 "cuda error",
@@ -71,6 +72,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 }
 ```
 * Most of options are self-explanatory. Regarding the `Sender` option, it is recommended to use Gmail. You should change the `pollymonitor2@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/lesssecureapps
+* If a `Bad` or `Good` option contains `___` (three underscore symbols), for example: `abc___xyz`, it means "contain `abc` but not `xyz`". This is useful when you cannot specify the full list of bad/good strings. For example, with a `Bad` option of `fan=0%`, it's crazy to list all cases for the `Good` option like `[ "fan=1", "fan=2", "fan=3" ... ]`. Instead, you can just write `[fan=___fan=0%]`.
 * Quit the miner if it is running, then execute the tool: `polly.bat`.
 * Make sure that the tool is executed every time your rig starts (e.g., create a shortcut of `polly.bat` and put it into the `Startup` folder of Windows).
 
