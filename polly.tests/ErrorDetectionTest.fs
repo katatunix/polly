@@ -9,12 +9,14 @@ open polly.ErrorDetection
 
 module ErrorDetectionTest =
 
-    let stuckProfile = { Tolerance = TimeMs (5L * 60000L); Action = "restart.bat" }
+    let stuckProfile = { Tolerance = fromMinutes 5; Action = "restart.bat" }
+    let badIndicator = [| { Contain = "fan=0%"; NotContains = [||] } |]
+    let goodIndicator = [| { Contain = "fan=20%"; NotContains = [||] } |]
 
     [<Test>]
     let ``when all lines are okay, then no fire`` () =
         let profiles = [|
-            { Bad = [| "fan=0%" |]; Tolerance = None; Action = None }
+            { Bad = badIndicator; Tolerance = None; Action = None }
         |]
         let mutable fired = false
         let fire = fun _ -> fired <- true
@@ -28,7 +30,7 @@ module ErrorDetectionTest =
     [<Test>]
     let ``when a line is error and no tolerance, then fire`` () =
         let profiles = [|
-            { Bad = [| "fan=0%" |]; Tolerance = None; Action = None }
+            { Bad = badIndicator; Tolerance = None; Action = None }
         |]
         let mutable fired = false
         let fire = fun _ -> fired <- true
@@ -42,8 +44,8 @@ module ErrorDetectionTest =
     [<Test>]
     let ``when a line is error and over tolerance duration, then fire`` () =
         let profiles = [|
-            {   Bad = [| "fan=0%" |]
-                Tolerance = Some { Duration = TimeMs 1000L; Good = [| "fan=20%"|] }
+            {   Bad = badIndicator
+                Tolerance = Some { Duration = TimeMs 1000L; Good = goodIndicator }
                 Action = None }
         |]
         let mutable fired = false
@@ -58,8 +60,8 @@ module ErrorDetectionTest =
     [<Test>]
     let ``when a line is error but there is a good line before tolerance duration, then no fire`` () =
         let profiles = [|
-            {   Bad = [| "fan=0%" |]
-                Tolerance = Some { Duration = TimeMs 1000L; Good = [| "fan=20%" |] }
+            {   Bad = badIndicator
+                Tolerance = Some { Duration = TimeMs 1000L; Good = goodIndicator }
                 Action = None }
         |]
         let mutable fired = false

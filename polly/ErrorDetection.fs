@@ -13,11 +13,10 @@ module ErrorDetection =
         Action : string option
         Log : string option }
 
-    let private matched (line : string) (indicator : string) =
-        let keys = indicator.Split ([| "___" |], StringSplitOptions.RemoveEmptyEntries)
-        keys.Length > 0 &&
-        line.Contains keys.[0] &&
-        keys |> Array.tail |> Array.forall (line.Contains >> not)
+    let private matched (line : string) (indicator : Indicator) =
+        indicator.Contain.Length > 0 &&
+        line.Contains indicator.Contain &&
+        indicator.NotContains |> Array.forall (line.Contains >> not)
 
     type private State =
         | Idle
@@ -30,8 +29,8 @@ module ErrorDetection =
             match profile.Bad |> Array.tryFind (matched line) with
             | None ->
                 state
-            | Some reason ->
-                let fireInfo = {    Reason = reason; UpTime = curTime - beginTime;
+            | Some indicator ->
+                let fireInfo = {    Reason = indicator.RawText; UpTime = curTime - beginTime;
                                     Action = profile.Action; Log = Some line }
                 match profile.Tolerance with
                 | None ->

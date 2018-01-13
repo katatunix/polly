@@ -1,5 +1,6 @@
 ﻿namespace polly
 
+open System
 open FSharp.Data
 open System.IO
 
@@ -12,12 +13,24 @@ module Config =
         Password : string
         DisplayedName : string }
 
+    let private INDI_SEP = "___"
+    let private INDI_SEPS = [| INDI_SEP |]
+
+    type Indicator = {
+        Contain : string
+        NotContains : string [] } with
+        member this.RawText =
+            if this.NotContains.Length = 0 then
+                this.Contain
+            else
+                this.Contain + INDI_SEP + (this.NotContains |> String.concat INDI_SEP)
+
     type Tolerance = {
         Duration : TimeMs
-        Good : string [] }
+        Good : Indicator [] }
 
     type Profile = {
-        Bad : string []
+        Bad : Indicator []
         Tolerance : Tolerance option
         Action : string option }
 
@@ -80,14 +93,21 @@ module Config =
             "PublicIpCheckMinutes" : 30
         }""">
 
+    let private parseIndicator (indicator : string) =
+        let keys = indicator.Split (INDI_SEPS, StringSplitOptions.RemoveEmptyEntries)
+        if keys.Length = 0 then
+            { Contain = ""; NotContains = [||] }
+        else
+            { Contain = keys.[0]; NotContains = keys |> Array.tail }
+
     let private parseProfiles (config : Json.Root) : Profile [] =
         config.Profiles
         |> Array.map(fun p ->
-            {   Bad = p.Bad
+            {   Bad = p.Bad |> Array.map parseIndicator
                 Tolerance = p.Tolerance
                             |> Option.map (fun t ->
                                 {   Duration = t.DurationMinutes |> fromMinutes
-                                    Good = t.Good })
+                                    Good = t.Good |> Array.map parseIndicator })
                 Action = p.Action })
 
     let private parseConfig (json : Json.Root) : Config =
