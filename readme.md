@@ -77,6 +77,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * Make sure that the tool is executed every time your rig starts (e.g., create a shortcut of `polly.bat` and put it into the `Startup` folder of Windows).
 
 ## Notes
+* You can specify a different path of the config file other than the default `config.json`. Just pass the path as the first argument to `polly.exe` as specified in `polly.bat`. The path can be either absolute or relative to the current execution folder. If no any path is provided, the default `config.json` will be used.
 * You should use `/` or `\\` (not `\`) in all the options containing a path, such as `MinerPath` and `Action` options.
 * The file or file path declared in every `Action` option is relative to the folder containing `polly.exe`.
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.

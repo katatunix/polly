@@ -49,7 +49,7 @@ module Config =
         PublicIpCheck : TimeMs
     }
 
-    let private CONFIG_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
+    let private DEFAULT_CONFIG_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
 
     type private Json = JsonProvider<"""
         {
@@ -128,9 +128,11 @@ module Config =
             PublicIpCheck = json.PublicIpCheckMinutes |> fromMinutes
         }
 
-    let load () =
+    let load configFile =
         try
-            File.ReadAllText CONFIG_FILE
+            configFile
+            |> Option.defaultValue DEFAULT_CONFIG_FILE
+            |> File.ReadAllText
             |> Json.Parse
             |> parseConfig
             |> Ok
