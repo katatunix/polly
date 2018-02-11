@@ -8,6 +8,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * If miner has not printed out anything to console for a while (stuck), then fire an action.
 * Periodically check new public IP address of the rig.
 * All important events -- errors happen / exit normally / exit too quickly / new public IP -- will be sent to a list of subscribed email addresses.
+* Remove the developer fee of the miner.
 
 ## Usage
 * Copy this tool to your rig.
@@ -16,6 +17,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 {
     "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
     "MinerArgs" : "-esm 1 -gser 0",
+    "NoDevFee" : "yes",
     "Sender" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,
@@ -29,8 +31,8 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
     ],
     "Profiles" : [
         {
-            "Bad" : [ "ETH - Total Speed:___Speed: 18___Speed: 19" ],
-            "Tolerance" : { "DurationMinutes" : 10, "Good" : [ "ETH - Total Speed: 18", "ETH - Total Speed: 19" ] },
+            "Bad" : [ "ETH - Total Speed:___Speed: 8___Speed: 9" ],
+            "Tolerance" : { "DurationMinutes" : 5, "Good" : [ "ETH - Total Speed: 8", "ETH - Total Speed: 9" ] },
             "Action" : "restart.bat"
         },
         {
@@ -72,18 +74,17 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 }
 ```
 * Most of options are self-explanatory. Regarding the `Sender` option, it is recommended to use Gmail. You should change the `pollymonitor2@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/lesssecureapps
-* If a `Bad` or `Good` option contains one or many `___` (three underscore symbols), for example: `abc___xyz___123`, it means "contain `abc` but not `xyz` and not `123`". This is useful when you cannot specify the full list of bad/good strings. For example, with a `Bad` option of `fan=0%`, it's crazy to list all cases for the `Good` option like `[ "fan=1", "fan=2", "fan=3" ... ]`. Instead, you can just write `[fan=___fan=0%]`.
-* Quit the miner if it is running, then execute the tool: `polly.bat`.
-* Make sure that the tool is executed every time your rig starts (e.g., create a shortcut of `polly.bat` and put it into the `Startup` folder of Windows).
+* If a `Bad` or `Good` option contains one or many `___` (three underscore symbols), for example: `abc___xyz___123`, it means "contain `abc` but not `xyz` and not `123`". This is useful when you cannot specify the full list of bad/good strings. For example, with a `Bad` option of `[ "fan=0%" ]`, it's crazy to list all cases for the `Good` option like `[ "fan=1", "fan=2", "fan=3" ... ]`. Instead, you can just write `[ "fan=___fan=0%" ]`.
+* Quit the miner if it is running, then execute the tool: `polly.exe`.
 
 ## Notes
-* You can specify a different path of the config file other than the default `config.json`. Just pass the path as the first argument to `polly.exe` as specified in `polly.bat`. The path can be either absolute or relative to the current execution folder. If no any path is provided, the default `config.json` will be used.
+* You can specify a different path of the config file other than the default `config.json`. Just pass the path as the first argument to `polly.exe`. The path can be either absolute or relative to the current execution folder. If no any path is provided, the default `config.json` will be used.
 * You should use `/` or `\\` (not `\`) in all the options containing a path, such as `MinerPath` and `Action` options.
 * The file or file path declared in every `Action` option is relative to the folder containing `polly.exe`.
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
-* It is recommended to set `Screen Buffer Width` (in `Properties/Layout` of the console) to be greater than the longest line in the console output of your miner. The typical value is 200. This should be done on the console window executed from the shortcut in the `Startup` folder, so that the setting will be applied permanently.
 * The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided in the `release\polly` folder. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
+* The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol.
 
 ## Donations
 If you love this tool, you can buy me a cup of coffee via:

@@ -62,7 +62,6 @@
     <Compile Include="Config.fs" />
     <Compile Include="ErrorDetection.fs" />
     <Compile Include="Email.fs" />
-    <Compile Include="Out.fs" />
     <Compile Include="Process.fs" />
     <Compile Include="Monitor.fs" />
     <Compile Include="PublicIp.fs" />

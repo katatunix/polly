@@ -1,6 +1,7 @@
 {
     "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
     "MinerArgs" : "-esm 1 -gser 0",
+    "NoDevFee" : "yes",
     "Sender" : {
         "SmtpHost" : "smtp.gmail.com",
         "SmtpPort" : 587,

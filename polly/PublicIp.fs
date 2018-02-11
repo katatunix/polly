@@ -27,17 +27,14 @@ module PublicIp =
 
     let private sendPublicIp senderInfo emails ip =
         try
-            Out.println "Send public IP ..."
             Email.sendPublicIp senderInfo emails ip
         with _ -> ()
 
     let private checkIp senderInfo emails =
-        Out.println "Get public IP ..."
         match get () with
-        | Error msg ->
-            Out.println (sprintf "Could not get public IP: %s" msg)
+        | Error _ ->
+            ()
         | Ok ip ->
-            Out.println (sprintf "Public IP = %s" ip)
             if ip <> load () then
                 sendPublicIp senderInfo emails ip
                 save ip

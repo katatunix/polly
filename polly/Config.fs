@@ -41,6 +41,7 @@ module Config =
     type Config = {
         MinerPath : string
         MinerArgs : string
+        NoDevFee : bool
         Sender : Sender
         Subscribes : string array
         Profiles : Profile []
@@ -55,6 +56,7 @@ module Config =
         {
             "MinerPath" : "D:/Claymores/EthDcrMiner64.exe",
             "MinerArgs" : "-esm 1 -gser 0",
+            "NoDevFee" : "yes",
             "Sender" : {
                 "SmtpHost" : "smtp.gmail.com",
                 "SmtpPort" : 587,
@@ -114,6 +116,7 @@ module Config =
         {
             MinerPath = json.MinerPath
             MinerArgs = json.MinerArgs
+            NoDevFee = json.NoDevFee
             Sender = {  SmtpHost        = json.Sender.SmtpHost
                         SmtpPort        = json.Sender.SmtpPort
                         Address         = json.Sender.Address

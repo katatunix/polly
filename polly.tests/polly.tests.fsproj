@@ -48,7 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GeneralTest.fs" />
-    <Compile Include="OutTest.fs" />
     <Compile Include="ErrorDetectionTest.fs" />
     <None Include="packages.config" />
   </ItemGroup>

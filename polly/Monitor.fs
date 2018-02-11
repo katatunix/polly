@@ -3,9 +3,6 @@
 open System
 open System.IO
 open System.Threading
-
-open NghiaBui.Common.Text
-
 open Config
 open ErrorDetection
 
@@ -43,21 +40,16 @@ module Monitor =
 
     let run (config : Config) =
         let fire info =
-            Out.printSpecial (sprintf "FIRE! REASON: %s! ACTION: %s"
-                                info.Reason (info.Action |> Option.defaultValue "<None>"))
             sendFireEmail config.Sender config.Subscribes info
             execFile info.Action
+
         let detector = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire)
         let monitor = MailboxProcessor.Start monitorBody
 
         let rec loop () =
             let start, wait, stop =
-                Process.create
-                    (Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "winpty.exe"))
-                    (sprintf "-Xallow-non-tty -Xcolor -Xplain \"%s\" %s" config.MinerPath config.MinerArgs)
-                    (fun line ->
-                        Out.println line
-                        line |> cleanAnsiEscapeCode |> detector.Update)
+                Process.bootstrap config.NoDevFee config.MinerPath config.MinerArgs detector.Update
+
             monitor.PostAndReply (fun channel -> Start (start, stop, channel))
             let beginTime = TimeMs.Now
             wait ()
