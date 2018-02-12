@@ -115,7 +115,7 @@ module ErrorDetection =
                         return! loop TimeMs.Now initialData
 
                     | Some (GetLog channel) ->
-                        channel.Reply data.Log
+                        channel.Reply (data.Log |> List.rev)
                         return! loop beginTime data
 
                     | Some (Stop channel) ->
