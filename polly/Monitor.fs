@@ -53,13 +53,14 @@ module Monitor =
             monitor.PostAndReply (fun channel -> Start (start, stop, channel))
             let beginTime = TimeMs.Now
             wait ()
+
             let duration = TimeMs.Now - beginTime
             let isQuick = duration < config.QuickExitProfile.Tolerance
-            let info = {    Reason = if isQuick then "Exit too quickly" else "Exit"
-                            UpTime = duration
-                            Action = if isQuick then Some config.QuickExitProfile.Action else None
-                            Log = None }
-            fire info
+            fire {  Reason = if isQuick then "Exit too quickly" else "Exit"
+                    UpTime = duration
+                    Action = if isQuick then Some config.QuickExitProfile.Action else None
+                    Log = detector.GetLog () }
+            
             detector.Reset ()
             loop ()
 

@@ -11,7 +11,8 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * Remove the developer fee of the miner.
 
 ## Usage
-* Copy this tool to your rig.
+* Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh?usp=sharing or https://github.com/katatunix/polly/releases
+* Extract to your rig.
 * Open file `config.json` and modify it following the template below:
 ```
 {
@@ -83,10 +84,16 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * The file or file path declared in every `Action` option is relative to the folder containing `polly.exe`.
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
-* The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided in the `release\polly` folder. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
+* The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
 * The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol.
 
 ## Donations
 If you love this tool, you can buy me a cup of coffee via:
 * BTC: 1MNipFhuKu48xhjw1ihEkzbohMX3HRwiML
 * ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
+* DCR: Dso4Y6BDdvXH6sEX1hy4UQwdFW71gPJNXXh
+* SC: 3f0895ac7e7282c055c98660ca17c5f7414b31698e227451b967e3a7b2985c0c78e48afd9577
+* BCH: 1JWUgrYPNMepvQUinQ1LD51UKrytCL7bn5
+* BTG: GVTaR1vqRKvH7PK1QbpG6V2snCVkSXgQBf
+* OMG: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
+* ETC: 0x94d9be21887bB9B480b291c962D68dA144eCBaCa

@@ -1,5 +1,5 @@
 from=polly/build
-to=release/polly
+to=release
 
 cp -pv $from/FSharp.Core.dll $to
 cp -pv $from/FSharp.Data.dll $to
