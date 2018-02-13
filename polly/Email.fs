@@ -38,7 +38,7 @@ module Email =
         let reason = sprintf "[Reason] %s" reason
         let upTime = makeUpTimeText upTimeMs
         let action = sprintf "[Action] %s" (action |> Option.defaultValue "<None>")
-        let log = log |> String.concat "\n"
+        let log = log |> List.rev |> String.concat "\n"
 
         let body = sprintf "%s\n%s\n%s\n%s\n\n%s" title reason upTime action log
         send senderInfo toAddresses subject body
