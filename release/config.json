@@ -36,7 +36,8 @@
                 "gpuminer cu_kx failed",
                 "gpuminer cu_k01 failed",
                 "gpuminer kx failed",
-                "cannot get fan speed"
+                "cannot get fan speed",
+                "hangs in OpenCL call"
             ],
             "Action" : "killminer.bat"
         },

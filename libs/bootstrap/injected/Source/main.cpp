@@ -41,6 +41,11 @@ void init()
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
 	stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	
+	char buffer[16];
+	sprintf(buffer, "%d\n", (int)GetCurrentProcessId());
+	unsigned long written = 0;
+	WriteFile(pipe, (const void*)buffer, (unsigned long)strlen(buffer), &written, NULL);
 }
 
 void writePipe(const void* s, unsigned long len)

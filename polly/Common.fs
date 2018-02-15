@@ -16,3 +16,11 @@ module Common =
             a > b
 
     let fromMinutes x = int64 x * 60000L |> TimeMs
+
+    let wrap f = fun () -> try f () with _ -> ()
+
+    type WaitFun = WaitFun of (unit -> unit)
+        with member this.Run () = let (WaitFun f) = this in f ()
+
+    type StopFun = StopFun of (unit -> unit)
+        with member this.Run () = let (StopFun f) = this in f ()

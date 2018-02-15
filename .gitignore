@@ -1,5 +1,9 @@
 /polly/build/
-/release/polly.zip
+/libs/bootstrap/bootstrap/x64/
+/libs/bootstrap/injected/x64/
+/libs/bootstrap/victim/x64/
+
+.vs/
 
 # Autosave files
 *~
@@ -19,13 +23,16 @@ Makefile.in
 *.pidb
 *.userprefs
 *.usertasks
+*.iobj
+*.ipdb
+*.pdb
 config.log
 config.make
 config.status
 aclocal.m4
 install-sh
 autom4te.cache/
-*.user
+
 *.tar.gz
 tarballs/
 test-results/

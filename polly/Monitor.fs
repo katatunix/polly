@@ -5,6 +5,7 @@ open System.IO
 open System.Threading
 open Config
 open ErrorDetection
+open Miner
 
 module Monitor =
 
@@ -18,23 +19,21 @@ module Monitor =
             let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, file)
             System.Diagnostics.Process.Start path |> ignore)
 
-    type private SimpleChannel = AsyncReplyChannel<unit>
-
     type private Message =
-        | Start of (unit -> unit) * (unit -> unit) * SimpleChannel
-        | Stop of SimpleChannel
+        | Start of (unit -> WaitFun * StopFun) * AsyncReplyChannel<WaitFun>
+        | Stop of AsyncReplyChannel<unit>
 
     let private monitorBody (mailbox : MailboxProcessor<Message>) = 
         let rec loop stopOp =
             async {
                 let! message = mailbox.Receive ()
                 match message with
-                | Start (start, stop, channel) ->
-                    start ()
-                    channel.Reply ()
+                | Start (run, channel) ->
+                    let wait, stop = run ()
+                    channel.Reply wait
                     return! loop (Some stop)
                 | Stop channel ->
-                    stopOp |> Option.iter (fun stop -> stop ())
+                    stopOp |> Option.iter (fun stop -> stop.Run ())
                     channel.Reply () }
         loop None
 
@@ -47,12 +46,11 @@ module Monitor =
         let monitor = MailboxProcessor.Start monitorBody
 
         let rec loop () =
-            let start, wait, stop =
-                Process.bootstrap config.NoDevFee config.MinerPath config.MinerArgs detector.Update
+            let run () = Miner.run config.NoDevFee config.MinerPath config.MinerArgs detector.Update
 
-            monitor.PostAndReply (fun channel -> Start (start, stop, channel))
+            let wait = monitor.PostAndReply (fun channel -> Start (run, channel))
             let beginTime = TimeMs.Now
-            wait ()
+            wait.Run ()
 
             let duration = TimeMs.Now - beginTime
             let isQuick = duration < config.QuickExitProfile.Tolerance
@@ -69,4 +67,4 @@ module Monitor =
 
         let wait = fun () -> thread.Join ()
         let stop = fun () -> monitor.PostAndReply Stop; detector.Stop ()
-        wait, stop
+        WaitFun wait, StopFun stop
