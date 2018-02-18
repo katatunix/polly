@@ -53,6 +53,7 @@
     <Reference Include="NghiaBui.Common">
       <HintPath>..\libs\NghiaBui.Common.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

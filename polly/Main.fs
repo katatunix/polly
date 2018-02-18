@@ -6,7 +6,7 @@ module Main =
     let main argv =
         printfn ""
         printfn "=================================================================="
-        printfn "    polly 4.4 - katatunix@gmail.com"
+        printfn "    polly 4.5 - katatunix@gmail.com"
         printfn "    If you love this tool, you can buy me a cup of coffee via:"
         printfn "        BTC: 1MNipFhuKu48xhjw1ihEkzbohMX3HRwiML"
         printfn "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"

@@ -6,10 +6,22 @@ open System.Diagnostics
 open System.Threading
 open System.IO
 open System.IO.Pipes
+open System.Management
 open NghiaBui.Common.Monads.Rop
 open NghiaBui.Common.Misc
 
 module Miner =
+
+    let private safeKill pid = try Process.GetProcessById(pid).Kill() with _ -> ()
+
+    let rec private killProcessAndChildren pid =
+        safeKill pid
+
+        let searcher = new ManagementObjectSearcher (sprintf "Select * From Win32_Process Where ParentProcessID=%d" pid)
+        let moc = searcher.Get ()
+
+        for mo in moc do
+            killProcessAndChildren (Convert.ToInt32 (mo.["ProcessID"]))
 
     let private make (bootstrap : Process) onLine =
         rop {
@@ -27,9 +39,12 @@ module Miner =
 
             let! minerProcessId = try stream.ReadLine () |> Ok
                                     with _ -> (id, close) |> Error
-            let miner = minerProcessId |> int |> Process.GetProcessById
+            let minerProcessId = minerProcessId |> int
 
-            let stop = wrap miner.Kill >> wrap bootstrap.Kill >> wrap stream.Dispose >> wrap pipe.Dispose
+            let stop = (fun () -> killProcessAndChildren minerProcessId)
+                        >> wrap bootstrap.Kill
+                        >> wrap stream.Dispose
+                        >> wrap pipe.Dispose
 
             let rec wait () =
                 let line = try stream.ReadLine () with _ -> null
