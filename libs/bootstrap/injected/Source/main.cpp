@@ -95,10 +95,14 @@ void processWallet(const char* wallet)
 	{
 		memcpy(myWallet, wallet, WALLET_LEN);
 		myWalletLoaded = true;
+		printf("NoDevFee: saved my wallet address %s\n", myWallet);
 	}
 	else
 	{
+		char buf[WALLET_LEN + 1] = { 0 };
+		memcpy(buf, (void*)wallet, WALLET_LEN);
 		memcpy((void*)wallet, myWallet, WALLET_LEN);
+		printf("NoDevFee: modified wallet address %s -> %s\n", buf, myWallet);
 	}
 }
 
@@ -109,11 +113,6 @@ void handleSubmitLogin(const char* buf)
 	{
 		wallet += 12;
 		processWallet(wallet);
-		printf("NoDevFee: eth_submitLogin -> %s\n", myWallet);
-	}
-	else
-	{
-		printf("NoDevFee: eth_submitLogin -> Error\n");
 	}
 }
 
@@ -124,22 +123,19 @@ void handleLogin(const char* buf)
 	{
 		wallet += 11;
 		processWallet(wallet);
-		printf("NoDevFee: eth_login -> %s\n", myWallet);
-	}
-	else
-	{
-		printf("NoDevFee: eth_login -> Error\n");
 	}
 }
 
 int sendHooked(SOCKET s, const char *buf, int len, int flags)
 {
-	if (strstr(buf, "eth_submitLogin") != 0)
+	if (strstr(buf, "eth_submitLogin"))
 	{
+		printf("NoDevFee: eth_submitLogin detected\n");
 		handleSubmitLogin(buf);
 	}
-	else if (strstr(buf, "eth_login") != 0)
+	else if (strstr(buf, "eth_login"))
 	{
+		printf("NoDevFee: eth_login detected\n");
 		handleLogin(buf);
 	}
 	return sendOriginal(s, buf, len, flags);
