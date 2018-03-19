@@ -85,7 +85,10 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * `StuckProfile.Action` and `QuickExitProfile.Action` cannot be empty but you can always specify a dummy `.bat` file.
 * If you are using `Claymores` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
 * The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
-* The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol.
+
+## NoDevFee
+* The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol and non-SSL connections.
+* If you are using `Claymores 11.1+` and a pool that supports SSL connections like `ethermine.org`, please add `-allpools 1` to the config of `Claymores` (to avoid `Claymores` using SSL connections for his DevFee mining), then open file `pool.txt` of `Polly` and specify your main pool connection (non-SSL of course), e.g. `asia1.ethermine.org:4444`. By this way, `Polly` will force `Claymores` to mine on your main pool instead of his DevFee pools.
 
 ## Donations
 If you love this tool, you can buy me a cup of coffee via:
