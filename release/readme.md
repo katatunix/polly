@@ -87,11 +87,12 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymores` miner process so the miner will be re-executed again) are also provided. If you are not using `Claymores`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
 
 ## NoDevFee
-* The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol and non-SSL pool connections.
-* Please make sure all of your pools (including the main one and failover ones) are non-SSL connections.
-* If your miner uses SSL connections in its `DevFee` period, please try to avoid this behavior. For example, with `Claymores 11.1+` and `ethermine.org`:
+* The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol and non-SSL `DevFee` pool connections.
+* Open file `pools.txt` and specify all of your used pools here. This includes the main one and failover ones. The main one must be specified first.
+    * If you are using `Claymores` in dual mode, all the pools of DCR mining must be also specified. Make sure the main pool of ETH mining is always specified first in the file `pools.txt`.
+* If your miner uses SSL connections in its `DevFee` period, please try to avoid (or mitigate) this behavior. For example, with `Claymores 11.1+` and `ethermine.org`:
+    * Use non-SSL pool connections (e.g., `asia.ethermine.org:4444`) for ETH mining.
     * Add `-allpools 1` to the config of `Claymores`.
-    * Open file `pools.txt` of `Polly` and specify all of your pools here. This includes the main one and failover ones of both ETH and DCR mining. The main pool of ETH mining must be speficied first.
 
 ## Donations
 If you love this tool, you can buy me a cup of coffee via:
