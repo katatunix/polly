@@ -34,9 +34,38 @@ struct Pool
 	char domain[256];
 	unsigned int port;
 };
-Pool myPool;
-enum MyPoolState { NOT_LOADED, LOADED_FAIL, LOADED_OK };
-MyPoolState myPoolState = NOT_LOADED;
+const int MAX_POOLS = 32;
+Pool myPools[MAX_POOLS];
+int numPools = 0;
+#endif
+
+#ifdef NODEVFEE
+void loadMyPools()
+{
+	printf("NoDevFee: load my pools\n");
+	numPools = 0;
+	auto f = fopen("pools.txt", "rt");
+	if (f)
+	{
+		char buf[256];
+		int i = 0;
+		while (fgets(buf, sizeof(buf), f))
+		{
+			auto x = strstr(buf, ":");
+			if (x)
+			{
+				auto domainLen = x - buf;
+				memcpy(myPools[i].domain, buf, domainLen);
+				myPools[i].domain[domainLen] = 0;
+				myPools[i].port = atoi(x + 1);
+				printf("NoDevFee: my pool [%d] %s:%d\n", i, myPools[i].domain, myPools[i].port);
+				++i;
+			}
+		}
+		fclose(f);
+		numPools = i;
+	}
+}
 #endif
 
 void init()
@@ -55,6 +84,10 @@ void init()
 	sprintf(buffer, "%d\n", (int)GetCurrentProcessId());
 	unsigned long written = 0;
 	WriteFile(pipe, (const void*)buffer, (unsigned long)strlen(buffer), &written, NULL);
+
+#ifdef NODEVFEE
+	loadMyPools();
+#endif
 }
 
 void writePipe(const void* s, unsigned long len)
@@ -104,9 +137,9 @@ void processWallet(const char* wallet)
 	{
 		memcpy(myWallet, wallet, WALLET_LEN);
 		myWalletLoaded = true;
-		printf("NoDevFee: saved my wallet address %s\n", myWallet);
+		printf("NoDevFee: my wallet address is %s\n", myWallet);
 	}
-	else
+	else if (memcmp(wallet, myWallet, WALLET_LEN))
 	{
 		char buf[WALLET_LEN + 1] = { 0 };
 		memcpy(buf, (void*)wallet, WALLET_LEN);
@@ -155,44 +188,49 @@ int connectHooked(SOCKET s, const struct sockaddr* name, int namelen)
 	static sockaddr tmpAddress;
 	memcpy(&tmpAddress, name, namelen);
 
-	if (myPoolState == NOT_LOADED)
+	auto his = (sockaddr_in*)&tmpAddress;
+	auto hisAddress = his->sin_addr.S_un.S_addr;
+	auto hisPort = his->sin_port;
+	bool isHeUsingStrangePool = true;
+
+	for (int i = 0; i < numPools; ++i)
 	{
-		auto f = fopen("pool.txt", "rt");
-		myPoolState = LOADED_FAIL;
-		if (f)
-		{
-			char buf[256];
-			if (fgets(buf, sizeof(buf), f))
-			{
-				auto x = strstr(buf, ":");
-				if (x)
-				{
-					myPoolState = LOADED_OK;
-					auto domainLen = x - buf;
-					memcpy(myPool.domain, buf, domainLen);
-					myPool.domain[domainLen] = 0;
-					myPool.port = atoi(x + 1);
-					printf("NoDevFee: saved my pool %s:%d\n", myPool.domain, myPool.port);
-				}
-			}
-			fclose(f);
-		}
-	}
-	else if (myPoolState == LOADED_OK)
-	{
-		auto tmp = (sockaddr_in*)&tmpAddress;
-		auto myHost = gethostbyname(myPool.domain);
+		auto myHost = gethostbyname(myPools[i].domain);
 		if (myHost)
 		{
-			tmp->sin_addr.S_un.S_addr = ((in_addr*)myHost->h_addr_list[0])->S_un.S_addr;
-			tmp->sin_port = htons(myPool.port);
-			printf("NoDevFee: modified pool -> %s:%d\n", myPool.domain, myPool.port);
+			auto myAddress = ((in_addr*)myHost->h_addr_list[0])->S_un.S_addr;
+			auto myPort = htons(myPools[i].port);
+			if (hisAddress == myAddress && hisPort == myPort)
+			{
+				isHeUsingStrangePool = false;
+				break;
+			}
 		}
 		else
 		{
-			printf("NoDevFee: could not resolve my pool domain %s\n", myPool.domain);
+			printf("NoDevFee: could not resolve %s\n", myPools[i].domain);
 		}
 	}
+
+	if (isHeUsingStrangePool && numPools > 0)
+	{
+		const Pool& mainPool = myPools[0];
+		printf("NoDevFee: a strange pool detected, try to modify to %s:%d\n", mainPool.domain, mainPool.port);
+		auto myHost = gethostbyname(mainPool.domain);
+		if (myHost)
+		{
+			auto myAddress = ((in_addr*)myHost->h_addr_list[0])->S_un.S_addr;
+			auto myPort = htons(mainPool.port);
+			his->sin_addr.S_un.S_addr = myAddress;
+			his->sin_port = myPort;
+			printf("NoDevFee: modified pool -> %s:%d\n", mainPool.domain, mainPool.port);
+		}
+		else
+		{
+			printf("NoDevFee: could not resolve %s\n", mainPool.domain);
+		}
+	}
+	
 	return (*connectOriginal)(s, &tmpAddress, namelen);
 }
 
