@@ -29,9 +29,9 @@ module Email =
 
         smtp.Send message
 
-    let private makeUpTimeText upTimeMs =
+    let makeUpTimeText upTimeMs =
         let ts = TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan
-        sprintf "[Up time] %s" (ts.ToString @"dd\.hh\:mm\:ss")
+        sprintf "[Uptime] %s" (ts.ToString @"d\d\ hh\:mm")
 
     let sendFire senderInfo toAddresses reason upTimeMs action log =
         let title = "FIRE!"

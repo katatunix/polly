@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="GeneralTest.fs" />
     <Compile Include="ErrorDetectionTest.fs" />
+    <Compile Include="EmailTest.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
