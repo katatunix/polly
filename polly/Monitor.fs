@@ -5,66 +5,62 @@ open System.IO
 open System.Threading
 open Config
 open ErrorDetection
-open Miner
 
 module Monitor =
 
-    let private sendFireEmail sender toAddresses (fi : FireInfo)  =
-        try
-            Email.sendFire sender toAddresses fi.Reason fi.UpTime.Value fi.Action fi.Log
-        with _ -> ()
+    let private sendFireEmail sender recipients info  =
+        Email.sendFire sender recipients info.Reason info.UpTime.Value info.Action info.Log
 
-    let private execFile =
-        Option.iter (fun file ->
-            let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, file)
+    let private executeAction action =
+        action
+        |> Option.iter (fun action ->
+            let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, action)
             System.Diagnostics.Process.Start path |> ignore)
 
+    let private fire config info =
+        try
+            sendFireEmail config.Sender config.Subscribes info
+            executeAction info.Action
+        with _ -> ()
+
     type private Message =
-        | Start of (unit -> WaitFun * StopFun) * AsyncReplyChannel<WaitFun>
+        | Start
+        | Exit of TimeMs
         | Stop of AsyncReplyChannel<unit>
 
-    let private monitorBody (mailbox : MailboxProcessor<Message>) = 
-        let rec loop stopOp =
-            async {
+    type Agent (config) =
+
+        let detectionAgent = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire config)
+        let waitHandle = new AutoResetEvent false
+
+        let mailbox = MailboxProcessor.Start (fun mailbox ->
+            let rec loop currentStop = async {
                 let! message = mailbox.Receive ()
                 match message with
-                | Start (run, channel) ->
-                    let wait, stop = run ()
-                    channel.Reply wait
+                | Start ->
+                    let stop = MinerExecution.start "bootstrap.exe" config.MinerPath config.MinerArgs
+                                                        config.NoDevFee detectionAgent.Update
+                                                        (Exit >> mailbox.Post)
                     return! loop (Some stop)
+                | Exit duration ->
+                    let isQuick = duration < config.QuickExitProfile.Tolerance
+                    fire config {   Reason = if isQuick then "Exit too quickly" else "Exit"
+                                    UpTime = duration
+                                    Action = if isQuick then Some config.QuickExitProfile.Action else None
+                                    Log = detectionAgent.GetLog () }
+                    detectionAgent.Reset ()
+                    mailbox.Post Start
+                    return! loop None
                 | Stop channel ->
-                    stopOp |> Option.iter (fun stop -> stop.Run ())
-                    channel.Reply () }
-        loop None
+                    currentStop |> Option.iter (fun stop -> stop.Execute ())
+                    channel.Reply ()
+                    waitHandle.Set () |> ignore }
+            loop None)
 
-    let run (config : Config) =
-        let fire info =
-            sendFireEmail config.Sender config.Subscribes info
-            execFile info.Action
+        do mailbox.Post Start
 
-        let detector = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire)
-        let monitor = MailboxProcessor.Start monitorBody
+        member this.Join () = waitHandle.WaitOne () |> ignore
 
-        let rec loop () =
-            let run () = Miner.run config.NoDevFee config.MinerPath config.MinerArgs detector.Update
-
-            let wait = monitor.PostAndReply (fun channel -> Start (run, channel))
-            let beginTime = TimeMs.Now
-            wait.Run ()
-
-            let duration = TimeMs.Now - beginTime
-            let isQuick = duration < config.QuickExitProfile.Tolerance
-            fire {  Reason = if isQuick then "Exit too quickly" else "Exit"
-                    UpTime = duration
-                    Action = if isQuick then Some config.QuickExitProfile.Action else None
-                    Log = detector.GetLog () }
-            
-            detector.Reset ()
-            loop ()
-
-        let thread = Thread (ThreadStart loop)
-        thread.Start ()
-
-        let wait = fun () -> thread.Join ()
-        let stop = fun () -> monitor.PostAndReply Stop; detector.Stop ()
-        WaitFun wait, StopFun stop
+        interface IDisposable with
+            member this.Dispose () =
+                mailbox.PostAndReply Stop

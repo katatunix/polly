@@ -11,7 +11,7 @@ module PublicIp =
 
     let private IP_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "ip.dat")
 
-    let private get () =
+    let private fetch () =
         use wc = new WebClient ()
         try
             wc.DownloadString (Uri "http://api.ipify.org/")
@@ -25,25 +25,23 @@ module PublicIp =
     let private save (ip : string) =
         try File.WriteAllText(IP_FILE, ip) with _ -> ()
 
-    let private sendPublicIp senderInfo emails ip =
-        try
-            Email.sendPublicIp senderInfo emails ip
-        with _ -> ()
-
-    let private checkIp senderInfo emails =
-        match get () with
+    let private check sender recipients =
+        match fetch () with
         | Error _ ->
             ()
         | Ok ip ->
             if ip <> load () then
-                sendPublicIp senderInfo emails ip
+                try Email.sendPublicIp sender recipients ip with _ -> ()
                 save ip
 
-    let startCheck (config : Config) =
-        let check () = checkIp config.Sender config.Subscribes
+    let start (config : Config) =
+        let check () = check config.Sender config.Subscribes
         check ()
 
-        let timer = new Timer (config.PublicIpCheck.Value |> float)
+        let interval = config.PublicIpCheck.Value |> float
+        let timer = new Timer (interval)
         timer.Elapsed.Add (fun _ -> check ())
         timer.Start ()
-        timer
+
+        { new IDisposable with
+            member this.Dispose () = timer.Stop () }

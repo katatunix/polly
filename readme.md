@@ -104,3 +104,4 @@ If you love this tool, you can buy me a cup of coffee via:
 * BTG: GVTaR1vqRKvH7PK1QbpG6V2snCVkSXgQBf
 * OMG: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
 * ETC: 0x94d9be21887bB9B480b291c962D68dA144eCBaCa
+* ZEC: t1QYV46NcBH6KWHUrg35CAp9SfSWfeWLhTr

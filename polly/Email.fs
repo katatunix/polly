@@ -10,10 +10,10 @@ module Email =
 
     let private subject = "Notification - " + Environment.MachineName
 
-    let private send (sender : Sender) (toAddresses : string []) subject body =
+    let private send sender (recipients : string []) subject body =
         use message = new MailMessage ()
         message.From <- MailAddress (sender.Address, sender.DisplayedName)
-        for toAddress in toAddresses do
+        for toAddress in recipients do
             message.To.Add (toAddress)
         message.Subject <- subject
         message.Body <- body
@@ -43,6 +43,6 @@ module Email =
         let body = sprintf "%s\n%s\n%s\n%s\n\n%s" title reason upTime action log
         send senderInfo toAddresses subject body
 
-    let sendPublicIp senderInfo toAddresses ip =
+    let sendPublicIp sender recipients ip =
         let body = "New public IP address: " + ip
-        send senderInfo toAddresses subject body
+        send sender recipients subject body

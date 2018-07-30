@@ -6,7 +6,7 @@ module Main =
     let main argv =
         printfn ""
         printfn "=================================================================="
-        printfn "    polly 4.9 - katatunix@gmail.com"
+        printfn "    polly 4.11 - katatunix@gmail.com"
         printfn "    If you love this tool, you can buy me a cup of coffee via:"
         printfn "        BTC: 1MNipFhuKu48xhjw1ihEkzbohMX3HRwiML"
         printfn "        ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
@@ -16,6 +16,7 @@ module Main =
         printfn "        BTG: GVTaR1vqRKvH7PK1QbpG6V2snCVkSXgQBf"
         printfn "        OMG: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b"
         printfn "        ETC: 0x94d9be21887bB9B480b291c962D68dA144eCBaCa"
+        printfn "        ZEC: t1QYV46NcBH6KWHUrg35CAp9SfSWfeWLhTr"
         printfn "=================================================================="
         printfn ""
 
@@ -26,11 +27,8 @@ module Main =
             printfn "Error: %s" msg
             1
         | Ok config ->
-            let checkIpTimer = PublicIp.startCheck config
-            let monitorWait, monitorStop = Monitor.run config
-
-            System.AppDomain.CurrentDomain.ProcessExit.Add (fun _ -> monitorStop.Run ())
-
-            monitorWait.Run ()
-            checkIpTimer.Stop ()
+            use ipTimer = PublicIp.start config
+            use monitor = new Monitor.Agent (config)
+            monitor.Join ()
+            printfn "EXIT!!!"
             0

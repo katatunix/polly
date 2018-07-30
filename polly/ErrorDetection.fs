@@ -1,11 +1,16 @@
 ﻿namespace polly
 
-open System
 open NghiaBui.Common.Misc
 
 open Config
 
 module ErrorDetection =
+
+    type FireInfo = {
+        Reason : string
+        UpTime : TimeMs
+        Action : string option
+        Log : string list }
 
     let private MAX_LOG_SIZE = 10
 
@@ -15,12 +20,6 @@ module ErrorDetection =
             line :: (log |> List.take (len - 1))
         else
             line :: log
-
-    type FireInfo = {
-        Reason : string
-        UpTime : TimeMs
-        Action : string option
-        Log : string list }
 
     type private ProfileState =
         | Idle

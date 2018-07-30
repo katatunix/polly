@@ -47,8 +47,7 @@ module Config =
         Profiles : Profile []
         StuckProfile : SpecialProfile
         QuickExitProfile : SpecialProfile
-        PublicIpCheck : TimeMs
-    }
+        PublicIpCheck : TimeMs }
 
     let private DEFAULT_CONFIG_FILE = Path.Combine (System.AppDomain.CurrentDomain.BaseDirectory, "config.json")
 
