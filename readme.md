@@ -1,4 +1,5 @@
-# Polly - a tool for monitoring cryptocurrency miners
+Polly - a tool for monitoring cryptocurrency miners
+===================================================
 
 Run this tool on your mining rig, when any of predefined errors happens (e.g., `fan=0%` or `got incorrect share`) with your miner, a predefined action will be automatically executed.
 
