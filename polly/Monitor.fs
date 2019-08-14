@@ -20,8 +20,12 @@ module Monitor =
     let private fire config info =
         try
             sendFireEmail config.Sender config.Subscribes info
+        with ex ->
+            printfn "Could not send email: %s" ex.Message
+        try
             executeAction info.Action
-        with _ -> ()
+        with ex ->
+            printfn "Could not execute action: %s" ex.Message
 
     type private Message =
         | Start
@@ -30,7 +34,7 @@ module Monitor =
 
     type Agent (config) =
 
-        let detectionAgent = ErrorDetection.Agent (config.StuckProfile, config.Profiles, fire config)
+        let detectionAgent = ErrorDetection.Agent (config.StuckProfile, config.Profiles, config.MaxLogLines, fire config)
         let waitHandle = new AutoResetEvent false
 
         let mailbox = MailboxProcessor.Start (fun mailbox ->
@@ -46,7 +50,7 @@ module Monitor =
                     let isQuick = duration < config.QuickExitProfile.Tolerance
                     fire config {   Reason = if isQuick then "Exit too quickly" else "Exit"
                                     UpTime = duration
-                                    Action = if isQuick then Some config.QuickExitProfile.Action else None
+                                    Action = if isQuick then config.QuickExitProfile.Action else None
                                     Log = detectionAgent.GetLog () }
                     detectionAgent.Reset ()
                     mailbox.Post Start

@@ -1,0 +1,41 @@
+MinerPath: D:\Claymore14.7\EthDcrMiner64.exe
+MinerArgs: -esm 1 -gser 0
+NoDevFee: true
+Sender:
+  SmtpHost: smtp.gmail.com
+  SmtpPort: 587
+  Address: pollymonitor@gmail.com
+  Password: 12345678
+  DisplayedName: Polly
+Subscribes:
+- apple@gmail.com
+- banana@gmail.com
+Profiles:
+- Bad:
+  - cannot get current temperature
+  - unspecified launch failure
+  - an illegal instruction was encountered
+  - gpu error
+  - need to restart miner
+  - opencl error
+  - hangs in OpenCL call
+  Action: restart.bat
+- Bad:
+  - got incorrect share
+  Action:
+- Bad:
+  - 'Total Speed:___Speed: 8___Speed: 9'
+  Tolerance:
+    DurationMinutes: 5
+    Good:
+    - 'Total Speed: 8'
+    - 'Total Speed: 9'
+  Action: restart.bat
+StuckProfile:
+  ToleranceMinutes: 5
+  Action: restart.bat
+QuickExitProfile:
+  ToleranceMinutes: 1
+  Action: restart.bat
+PublicIpCheckMinutes: 30
+MaxLogLines: 50

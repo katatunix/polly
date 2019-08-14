@@ -19,6 +19,8 @@ module Common =
 
     let fromMinutes x = int64 x * 60000L |> TimeMs
 
+    let string2opt s = if String.IsNullOrEmpty s then None else Some s
+
     type StopFun = StopFun of (unit -> unit) with
         member this.Execute () = let (StopFun f) = this in f ()
 

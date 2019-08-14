@@ -12,11 +12,9 @@ module ErrorDetection =
         Action : string option
         Log : string list }
 
-    let private MAX_LOG_SIZE = 10
-
-    let private insert2Log line log =
+    let private insert2Log maxLines line log =
         let len = log |> List.length
-        if len = MAX_LOG_SIZE then
+        if len = maxLines then
             line :: (log |> List.take (len - 1))
         else
             line :: log
@@ -69,10 +67,10 @@ module ErrorDetection =
         | GetLog of AsyncReplyChannel<string list>
         | Stop of AsyncReplyChannel<unit>
 
-    type Agent (stuckProfile : SpecialProfile, profiles, onFire) =
+    type Agent (stuckProfile : SpecialProfile, profiles, maxLines, onFire) =
 
         let updateData line beginTime data =
-            let log = data.Log |> insert2Log line
+            let log = data.Log |> insert2Log maxLines line
             let profileStates = Array.map2 (updateProfileState line beginTime TimeMs.Now log) profiles data.ProfileStates
 
             profileStates
@@ -89,7 +87,7 @@ module ErrorDetection =
         let fireBecauseStuck beginTime log =
             onFire {    Reason = "Stuck"
                         UpTime = TimeMs.Now - beginTime
-                        Action = Some stuckProfile.Action
+                        Action = stuckProfile.Action
                         Log = log }
 
         let initialData = {

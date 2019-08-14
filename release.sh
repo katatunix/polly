@@ -3,7 +3,8 @@ from2=libs/bootstrap/x64
 to=release
 
 cp -pv $from/FSharp.Core.dll $to
-cp -pv $from/FSharp.Data.dll $to
+cp -pv $from/FSharp.Configuration.dll $to
+cp -pv $from/SharpYaml.dll $to
 cp -pv $from/NghiaBui.Common.dll $to
 cp -pv $from/polly.exe $to
 cp -pv $from/polly.exe.config $to
