@@ -67,7 +67,7 @@ MaxLogLines: 50
 
 * Most of options are self-explanatory. Regarding the `Sender` option, it is recommended to use Gmail. You should change the `pollymonitor@gmail.com` to your own Gmail address (and password, of course). Remember to turn on the  `Allow less secure apps` option of your account at https://myaccount.google.com/lesssecureapps
 
-* If a `Bad` or `Good` option contains one or many `___` (three underscore symbols), for example: `abc___xyz___123`, it means "contain `abc` but not `xyz` and not `123`". This is useful when you cannot specify the full list of bad/good strings. For example, with a `Bad` option of `[ "fan=0%" ]`, it's crazy to list all cases for the `Good` option like `[ "fan=1", "fan=2", "fan=3" ... ]`. Instead, you can just write `[ "fan=___fan=0%" ]`.
+* If a `Bad` or `Good` option contains one or many `___` (three underscore symbols), for example: `abc___xyz___123`, it means "_contain `abc` but not `xyz` and not `123`_". This is useful when you cannot specify the full list of bad/good strings. For example, with a `Bad` option of `fan=0`, it's crazy to list all cases for the `Good` option like `fan=1`, `fan=2`, `fan=3` ... Instead, you can just write the `Good` option as `fan=___fan=0`.
 
 * Quit the miner if it is running, then execute the tool: `polly.exe`.
 
