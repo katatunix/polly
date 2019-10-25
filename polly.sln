@@ -1,9 +1,9 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "polly", "polly\polly.fsproj", "{B167AF53-5B95-457F-8DB0-42F93C335F40}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "polly", "polly\polly.fsproj", "{B167AF53-5B95-457F-8DB0-42F93C335F40}"
 EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "polly.tests", "polly.tests\polly.tests.fsproj", "{A3597170-00BD-4371-A5FB-36CDFA555030}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "polly.tests", "polly.tests\polly.tests.fsproj", "{A3597170-00BD-4371-A5FB-36CDFA555030}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

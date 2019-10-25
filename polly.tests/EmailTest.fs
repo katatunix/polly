@@ -1,12 +1,15 @@
-﻿namespace polly.tests
+﻿module polly.tests.EmailTest
 
-open System
 open NUnit.Framework
-
 open polly
+open polly.Config
 
-module EmailTest =
-
-    [<Test>]
-    let ``test uptime format`` () =
-        Assert.AreEqual ("[Uptime] 11d 13:46", Email.makeUpTimeText 1000000000L)
+[<Test>]
+let ``test send email`` () =
+    let sender =
+        { SmtpHost = "smtp.gmail.com"
+          SmtpPort = 587
+          Address = "pollymonitor3@gmail.com"
+          Password = "Minh12345678"
+          DisplayedName = "Polly" }
+    Email.sendPublicIp sender [ "katatunix@gmail.com" ] "1.2.3.4"

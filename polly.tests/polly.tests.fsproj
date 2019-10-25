@@ -47,7 +47,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <Compile Include="GeneralTest.fs" />
-    <Compile Include="ErrorDetectionTest.fs" />
     <Compile Include="EmailTest.fs" />
     <ProjectReference Include="..\polly\polly.fsproj">
       <Project>{B167AF53-5B95-457F-8DB0-42F93C335F40}</Project>
