@@ -36,5 +36,9 @@
     <ClInclude Include="Source\minhook\trampoline.h">
       <Filter>minhook</Filter>
     </ClInclude>
+    <ClInclude Include="Source\log.h" />
+    <ClInclude Include="Source\Pipe.h" />
+    <ClInclude Include="Source\PoolHub.h" />
+    <ClInclude Include="Source\Wallet.h" />
   </ItemGroup>
 </Project>

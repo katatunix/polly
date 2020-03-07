@@ -14,7 +14,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 
 * All important events &ndash; errors happen / exit normally / exit too quickly / new public IP &ndash; will be sent to a list of subscribed email addresses.
 
-* Remove the developer fee of the miner (NoDevFee).
+* Remove the developer fee of the miner (`NoDevFee`) with `RemoveFee` is 50%.
 
 ## Usage
 * Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh?usp=sharing or https://github.com/katatunix/polly/releases
@@ -89,15 +89,3 @@ MaxLogLines: 50
 * If your miner uses SSL connections in its `DevFee` period, please try to avoid (or mitigate) this behavior. For example, with `Claymore 11.1+` and `ethermine.org`:
     * Use non-SSL pool connections (e.g., `asia.ethermine.org:4444`) for ETH mining.
     * Add `-allpools 1` to the config of `Claymore`.
-
-## Donations
-If you love this tool, you can buy me a cup of coffee via:
-* BTC: 1MNipFhuKu48xhjw1ihEkzbohMX3HRwiML
-* ETH: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
-* DCR: Dso4Y6BDdvXH6sEX1hy4UQwdFW71gPJNXXh
-* SC: 3f0895ac7e7282c055c98660ca17c5f7414b31698e227451b967e3a7b2985c0c78e48afd9577
-* BCH: 1JWUgrYPNMepvQUinQ1LD51UKrytCL7bn5
-* BTG: GVTaR1vqRKvH7PK1QbpG6V2snCVkSXgQBf
-* OMG: 0xf8B7728dC0c1cB2FCFcc421E9a2b3Ed6cdf1B43b
-* ETC: 0x94d9be21887bB9B480b291c962D68dA144eCBaCa
-* ZEC: t1QYV46NcBH6KWHUrg35CAp9SfSWfeWLhTr

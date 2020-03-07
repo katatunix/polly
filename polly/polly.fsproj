@@ -58,13 +58,13 @@
       <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
     <Reference Include="MimeKit">
-      <HintPath>..\packages\MimeKit.2.3.2\lib\net45\MimeKit.dll</HintPath>
+      <HintPath>..\packages\MimeKit.2.5.1\lib\net45\MimeKit.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Security" />
     <Reference Include="MailKit">
-      <HintPath>..\packages\MailKit.2.3.2\lib\net45\MailKit.dll</HintPath>
+      <HintPath>..\packages\MailKit.2.5.1\lib\net45\MailKit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
