@@ -15,9 +15,10 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * All important events &ndash; errors happen / exit normally / exit too quickly / new public IP &ndash; will be sent to a list of subscribed email addresses.
 
 * Remove the developer fee of the miner (`NoDevFee`) with `RemoveFee` is 50%.
+* Compatible with Claymore and PhoenixMiner.
 
 ## Usage
-* Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh?usp=sharing or https://github.com/katatunix/polly/releases
+* Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh
 * Extract to your rig.
 * Open file `config.yml` and modify it following the template below:
 
@@ -76,16 +77,15 @@ MaxLogLines: 50
 
 * The file or file path declared in every `Action` option is relative to the folder containing `polly.exe`.
 
-* If you are using `Claymore` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
+* If you are using `Claymore`/`PhoenixMiner` miner and its `config.txt` file, please leave the `MinerArgs` option as empty.
 
 * The two useful actions `restart.bat` (for restarting rig) and `killminer.bat` (for killing `Claymore` miner process so the miner will be re-executed again) are also provided. If you are not using `Claymore`, open `killminer.bat` and replace `EthDcrMiner64.exe` with your miner process name. Miner process name can be seen in `Task Manager`.
 
 ## NoDevFee
 * The `NoDevFee` feature is based on https://github.com/Demion/nodevfee and currently only works with Stratum protocol and non-SSL `DevFee` pool connections.
 
-* Open file `pools.txt` and specify all of your used pools here. This includes the main one and failover ones. The main one must be specified first.
-    * If you are using `Claymore` in dual mode, all the pools of DCR mining must be also specified. Make sure the main pool of ETH mining is always specified first in the file `pools.txt`.
-
 * If your miner uses SSL connections in its `DevFee` period, please try to avoid (or mitigate) this behavior. For example, with `Claymore 11.1+` and `ethermine.org`:
     * Use non-SSL pool connections (e.g., `asia.ethermine.org:4444`) for ETH mining.
     * Add `-allpools 1` to the config of `Claymore`.
+
+* Not tested on dual mining mode.
