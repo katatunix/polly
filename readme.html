@@ -287,7 +287,7 @@ pre[data-line] .line-highlight[data-end]:after {
 <p>Remove the developer fee of the miner (<code>NoDevFee</code>) with <code>RemoveFee</code> is 50%.</p>
 </li>
 <li>
-<p>Compatible with Claymore and PhoenixMiner.</p>
+<p>Compatible with <code>Claymore</code> and <code>PhoenixMiner</code>.</p>
 </li>
 </ul>
 <h2 class="mume-header" id="usage">Usage</h2>
@@ -372,14 +372,20 @@ pre[data-line] .line-highlight[data-end]:after {
 <p>The <code>NoDevFee</code> feature is based on <a href="https://github.com/Demion/nodevfee">https://github.com/Demion/nodevfee</a> and currently only works with Stratum protocol and non-SSL <code>DevFee</code> pool connections.</p>
 </li>
 <li>
+<p>To enable this feature, set <code>NoDevFee: true</code> in <code>config.yml</code>. Set it to <code>false</code> to disable <code>NoDevFee</code> &#x2013; <em>frankly, you and I should do that</em>.</p>
+</li>
+<li>
+<p>Open <code>pools.txt</code> and specify all of your used pools here. This includes the main one and failover ones. The main one must be specified first.</p>
+<ul>
+<li>If you are using <code>Claymore</code> in dual mode, all the pools of DCR mining must be also specified. Make sure the main pool of ETH mining is always specified first in the file <code>pools.txt</code>.</li>
+</ul>
+</li>
+<li>
 <p>If your miner uses SSL connections in its <code>DevFee</code> period, please try to avoid (or mitigate) this behavior. For example, with <code>Claymore 11.1+</code> and <code>ethermine.org</code>:</p>
 <ul>
 <li>Use non-SSL pool connections (e.g., <code>asia.ethermine.org:4444</code>) for ETH mining.</li>
 <li>Add <code>-allpools 1</code> to the config of <code>Claymore</code>.</li>
 </ul>
-</li>
-<li>
-<p>Not tested on dual mining mode.</p>
 </li>
 </ul>
 
