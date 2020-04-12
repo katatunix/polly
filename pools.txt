@@ -1,3 +1,0 @@
-asia1.ethermine.org:4444
-eu1.ethermine.org:4444
-us1.ethermine.org:4444

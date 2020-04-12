@@ -14,7 +14,8 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 
 * All important events &ndash; errors happen / exit normally / exit too quickly / new public IP &ndash; will be sent to a list of subscribed email addresses.
 
-* Remove the developer fee of the miner (`NoDevFee`) with `RemoveFee` is 50%.
+* Remove the developer fee of the miner (`NoDevFee`).
+
 * Compatible with `Claymore` and `PhoenixMiner`.
 
 ## Usage
