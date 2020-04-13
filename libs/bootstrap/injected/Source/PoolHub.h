@@ -7,6 +7,7 @@
 class PoolHub {
 public:
     PoolHub(const char* file) {
+        LOGI("Loading pool(s) from %s", file);
         m_count = 0;
         auto f = fopen(file, "rt");
         if (!f) return;
@@ -23,6 +24,7 @@ public:
                 ++m_count;
             }
         }
+        LOGI("%d pool(s) loaded", m_count);
         fclose(f);
     }
 
@@ -49,15 +51,25 @@ private:
     bool isKnownPool(sockaddr victim) {
         auto his = (sockaddr_in*)&victim;
         auto hisAddress = his->sin_addr.S_un.S_addr;
+        const auto localhost = 2130706433UL; // 127.0.0.1
+        if (hisAddress == 0 || hisAddress == localhost) {
+            return true;
+        }
         auto hisPort = his->sin_port;
         for (int i = 0; i < m_count; ++i) {
             auto& pool = m_pools[i];
+            auto myPort = htons(pool.port);
             auto myHost = gethostbyname(pool.domain);
             if (myHost) {
-                auto myAddress = ((in_addr*)myHost->h_addr_list[0])->S_un.S_addr;
-                auto myPort = htons(pool.port);
-                if (hisAddress == myAddress && hisPort == myPort)
-                    return true;
+                int i = 0;
+                while (myHost->h_addr_list[i]) {
+                    auto myAddress = ((in_addr*)myHost->h_addr_list[i])->S_un.S_addr;
+                    //LOGD("myAddress = %lu, myPort = %d, hisAddress = %lu, hisPort = %d", myAddress, myPort, hisAddress, hisPort);
+                    if (hisAddress == myAddress && hisPort == myPort) {
+                        return true;
+                    }
+                    ++i;
+                }
             } else {
                 LOGE("Could not resolve %s", pool.domain);
             }
