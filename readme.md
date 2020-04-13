@@ -19,7 +19,7 @@ Run this tool on your mining rig, when any of predefined errors happens (e.g., `
 * Compatible with `Claymore` and `PhoenixMiner`.
 
 ## Usage
-* Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh
+* Download: https://drive.google.com/drive/folders/1B-p-HME_HmSw10LV-MXqxDdhBHgltizh or https://github.com/katatunix/polly/releases
 * Extract to your rig.
 * Open file `config.yml` and modify it following the template below:
 
