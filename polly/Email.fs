@@ -8,9 +8,9 @@ let private subject = "Notification - " + Environment.MachineName
 
 let private send (sender: Config.Sender) recipients subject body =
     let message = MimeMessage ()
-    message.From.Add <| MailboxAddress (sender.DisplayedName, sender.Address)
-    for toAddress in recipients do
-        message.To.Add <| MailboxAddress (toAddress)
+    message.From.Add (MailboxAddress (sender.DisplayedName, sender.Address))
+    for (toAddress: string) in recipients do
+        message.To.Add (MailboxAddress.Parse toAddress)
     message.Subject <- subject
     let tp = TextPart ("plain")
     tp.Text <- body
