@@ -26,21 +26,27 @@ let rec waitForKey key =
     if Console.ReadKey(true).Key <> key then
         waitForKey key
 
-let CTRL_C_EVENT = 0
-let CTRL_BREAK_EVENT = 1
-let CTRL_CLOSE_EVENT = 2
-let CTRL_LOGOFF_EVENT = 5
-let CTRL_SHUTDOWN_EVENT = 6
+type Event =
+    | C = 0
+    | Break = 1
+    | Close = 2
+    | LogOff = 5
+    | Shutdown = 6
+
 type ConsoleCtrEventHandler = delegate of int -> bool
 [<DllImport("kernel32.dll")>]
 extern bool SetConsoleCtrlHandler (ConsoleCtrEventHandler handler, bool add)
 
 let registerAppExit callback =
     let handler = new ConsoleCtrEventHandler (fun ctrlType ->
-        if  ctrlType = CTRL_C_EVENT ||
-            ctrlType = CTRL_CLOSE_EVENT ||
-            ctrlType = CTRL_LOGOFF_EVENT ||
-            ctrlType = CTRL_SHUTDOWN_EVENT then
+        match enum ctrlType with
+        | Event.C
+        | Event.Close
+        | Event.LogOff
+        | Event.Shutdown ->
             callback ()
-        true)
+        | _ ->
+            ()
+        true
+    )
     SetConsoleCtrlHandler (handler, true) |> ignore
