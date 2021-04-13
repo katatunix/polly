@@ -46,7 +46,7 @@ let private updateProfileState line beginTime curTime log profile = function
             | _ ->
                 Active (fireInfo, curTime)
 
-    | Active (fireInfo, oldTime) as state ->
+    | Active (fireInfo, oldTime) ->
         let { Duration = toleranceDuration; Good = goodIndicators } = profile.Tolerance.Value
         if curTime - oldTime > toleranceDuration then
             Over { fireInfo with UpTime = curTime - beginTime }

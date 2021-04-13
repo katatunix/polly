@@ -14,7 +14,7 @@ let private executeAction action =
     action
     |> Option.iter (fun action ->
         let path = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, action)
-        System.Diagnostics.Process.Start path |> ignore
+        Diagnostics.Process.Start path |> ignore
     )
 
 let private fire config info =

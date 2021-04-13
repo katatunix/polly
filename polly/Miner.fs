@@ -14,10 +14,11 @@ let private killProcess processId =
 let rec private killProcessTree rootProcessId =
     killProcess rootProcessId
 
-    use searcher = new ManagementObjectSearcher (sprintf "SELECT * FROM Win32_Process WHERE ParentProcessID=%d" rootProcessId)
+    let query = sprintf "SELECT * FROM Win32_Process WHERE ParentProcessID=%d" rootProcessId
+    use searcher = new ManagementObjectSearcher (query)
     let moc = searcher.Get ()
     for mo in moc do
-        killProcessTree (Convert.ToInt32 (mo.["ProcessID"]))
+        killProcessTree (Convert.ToInt32 mo.["ProcessID"])
 
 let private startWith (bootstrap: Process) onLine onExit =
     let pipe = new NamedPipeServerStream ("Polly", PipeDirection.In)
@@ -27,11 +28,14 @@ let private startWith (bootstrap: Process) onLine onExit =
     let stream = new StreamReader (pipe, Encoding.UTF8)
     let minerProcessId = stream.ReadLine () |> int
 
-    let stop = fun _ -> try killProcessTree minerProcessId
-                            stream.Dispose ()
-                            pipe.Dispose ()
-                            bootstrap.Kill ()
-                        with _ -> ()
+    let stop () =
+        try
+            killProcessTree minerProcessId
+            stream.Dispose ()
+            pipe.Dispose ()
+            bootstrap.Kill ()
+        with _ ->
+            ()
 
     let beginTime = TimeMs.Now
     let rec loop () =

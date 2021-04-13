@@ -9,10 +9,10 @@ let private subject = "Notification - " + Environment.MachineName
 let private send (sender: Config.Sender) recipients subject body =
     let message = MimeMessage ()
     message.From.Add (MailboxAddress (sender.DisplayedName, sender.Address))
-    for (toAddress: string) in recipients do
+    for toAddress: string in recipients do
         message.To.Add (MailboxAddress.Parse toAddress)
     message.Subject <- subject
-    let tp = TextPart ("plain")
+    let tp = TextPart "plain"
     tp.Text <- body
     message.Body <- tp
 
@@ -20,10 +20,10 @@ let private send (sender: Config.Sender) recipients subject body =
     client.Connect (sender.SmtpHost, sender.SmtpPort, false)
     client.Authenticate (sender.Address, sender.Password)
     client.Send message
-    client.Disconnect (true) |> ignore
+    client.Disconnect true
 
-let private makeUpTimeText upTimeMs =
-    let ts = TimeSpan.TicksPerMillisecond * upTimeMs |> TimeSpan
+let private makeUpTimeText (upTimeMs: int64) =
+    let ts = TimeSpan.FromMilliseconds (float upTimeMs)
     sprintf "[Uptime] %s" (ts.ToString @"d\d\ hh\:mm")
 
 let sendFire senderInfo toAddresses reason upTimeMs action log =

@@ -2,7 +2,7 @@
 
 [<EntryPoint>]
 let main argv =
-    printfn "\npolly 5.5 - katatunix@gmail.com\n"
+    printfn "\npolly 5.6 - katatunix@gmail.com\n"
 
     let configFile = if argv.Length = 0 then None else Some argv.[0]
 

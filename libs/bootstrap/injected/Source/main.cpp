@@ -4,6 +4,7 @@
 	#include "PoolHub.h"
 	#include "Wallet.h"
 #endif
+
 #include <stdio.h>
 #include "minhook/MinHook.h"
 #include "log.h"
@@ -11,6 +12,7 @@
 
 int (*__stdio_common_vfprintf_original)(unsigned __int64 _Options, FILE* _Stream, char const* _Format, _locale_t _Locale, va_list _ArgList);
 BOOL (__stdcall *WriteFileOriginal)(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED lpOverlapped);
+
 #ifdef NODEVFEE
 int (__stdcall *connectOriginal)(SOCKET s, const struct sockaddr *name, int namelen);
 typedef BOOL (__stdcall *ConnectExPtr)(SOCKET s, const struct sockaddr *name, int namelen, PVOID lpSendBuffer,
@@ -25,6 +27,7 @@ int (__stdcall *WSASendOriginal)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCou
 #endif
 
 Pipe pipe("Polly");
+
 #ifdef NODEVFEE
 PoolHub poolHub("pools.txt");
 Wallet wallet;
